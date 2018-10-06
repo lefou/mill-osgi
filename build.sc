@@ -4,23 +4,27 @@ import mill.scalalib._
 import mill.scalalib.publish._
 
 /** Build JARs. */
-def build() = T.command {
+def _build() = T.command {
   core.jar()
 }
 
 /** Run test. */
-def test() = T.command {
+def _test() = T.command {
   core.test.test()()
 }
 
-def install() = T.command {
-  build()()
-  test()()
+def _install() = T.command {
+  _build()()
+  _test()()
   core.publishLocal()()
   core.publishM2Local()()
   val a = core.artifactMetadata()
   T.ctx().log.info(s"Installed ${a} into Ivy and Maven repository")
 }
+
+//def idea() = T.command {
+//  mill.scalalib.GenIdea.idea()
+//}
 
 object core
   extends ScalaModule
@@ -43,6 +47,7 @@ object core
 
   def ivyDeps = Agg(
     Deps.bndlib,
+    Deps.slf4j,
     Deps.millMain,
     Deps.millScalalib
   )

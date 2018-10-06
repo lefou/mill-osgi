@@ -46,7 +46,7 @@ case class OsgiHeaders(
     val props = new Properties()
 
     def addProp(header: String, value: Any): Unit = value match {
-      case null | None | Seq() =>
+      case null | None | Seq() => // we don't add any property
       case e: String => props.put(header, e)
       case Some(e: String) => props.put(header, e)
       case es: Seq[_] => props.put(header, es.map(_.toString()).mkString(","))
