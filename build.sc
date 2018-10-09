@@ -1,5 +1,7 @@
 import ammonite.ops.home
+import ammonite.ops.ls
 import mill._
+import mill.define.Module
 import mill.scalalib._
 import mill.scalalib.publish._
 
@@ -54,7 +56,7 @@ object core
 
   object test extends Tests {
 
-    def ivyDeps = Agg(
+    override def ivyDeps = Agg(
       Deps.scalaTest
     )
 
@@ -92,6 +94,86 @@ object core
 }
 
 import ammonite.ops._
+
+object integrationTest extends Module {
+
+  def testCases = T.input {
+    val src = millSourcePath / 'src
+    ls(src).filter(_.isDir).map(PathRef(_))
+  }
+
+  def test() = T.command {
+    val tests = testCases()
+    mkdir(T.ctx().dest)
+
+    def resolve(name: String): Path = {
+      core.runClasspath().find(pr =>
+        pr.path.last.startsWith(name)).get.path
+    }
+
+    //    pr.path.last.startsWith("bnd-")
+
+    val libs = Seq(
+      core.jar().path -> "mill-osgi.jar",
+      resolve("slf4j-api-") -> "slf4j-api.jar",
+      resolve("biz.aQute.bndlib-") -> "bndlib.jar"
+    )
+
+    val libPath = T.ctx().dest / 'lib
+    mkdir(libPath)
+    libs.foreach { lib =>
+      // copy plugin here
+      cp(lib._1, libPath / lib._2)
+    }
+
+    case class TestCase(name: String, exitCode: Int, out: Seq[String], err: Seq[String]) {
+      override def toString(): String =
+        s"Test case: ${
+          name
+        }\nExit code: ${
+          exitCode
+        }\n\n[out]\n\n${
+          out.mkString("\n")
+        }\n\n[err]\n\n${
+          err.mkString("\n")
+        }"
+
+    }
+
+    val results = tests.map { t =>
+      val testPath = T.ctx().dest / t.path.last
+      T.ctx().log.info("Running integration test: " + t.path.last)
+
+      // start clean
+      rm(testPath)
+
+      // copy test project here
+      cp(t.path, testPath)
+
+      // create plugin classpath file
+      write(testPath / "plugin.sc", libs.map(lib =>
+        "import $cp.^.lib.`" + lib._2 + "`\n"))
+
+      // run mill with _verify target in test path
+      val result = try {
+        %%("mill", "_verify")(testPath)
+      } catch {
+        case e: ShelloutException => e.result
+      }
+
+      TestCase(t.path.last, result.exitCode, result.out.lines, result.err.lines)
+    }
+
+    val (succeeded, failed) = results.partition(_.exitCode == 0)
+
+    println(s"\nSucceeded tests: ${succeeded.size}\n${succeeded.mkString("\n", "\n", "")}")
+    println(s"\nFailed tests: ${failed.size}\n${failed.mkString("\n", "\n", "")}")
+
+    if(!failed.isEmpty) throw new AssertionError(s"${failed.size} integration test(s) failed")
+
+  }
+
+}
 
 class LocalM2Publisher(m2Repo: Path) {
 
