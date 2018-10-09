@@ -4,7 +4,7 @@ import $exec.plugin
 import de.tobiasroeser.mill.osgi._
 
 def _verify() = T.command {
-  hello.osgiBundle()
+  hello.jar()
 }
 
 object hello extends ScalaModule with OsgiBundleModule {

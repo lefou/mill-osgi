@@ -12,12 +12,29 @@ import ammonite.ops.rm
 import mill._
 import mill.define.Target
 import mill.define.Target.apply
+import mill.define.Task
+import mill.eval.PathRef
 import mill.scalalib.JavaModule
 import mill.scalalib.PublishModule
 
 trait OsgiBundleModule extends JavaModule {
 
   import OsgiBundleModule._
+
+  /**
+   * The transitive version of `localClasspath` but using the final jar where possible
+   */
+  override def transitiveLocalClasspath: T[Agg[PathRef]] = T {
+    Task.traverse(recursiveModuleDeps) { m =>
+      T.task {
+        Agg(m.jar())
+      }
+    }().flatten
+  }
+
+  override def jar: T[PathRef] = T {
+    osgiBundle()
+  }
 
   def bundleSymbolicName: T[String] = this match {
     case _: PublishModule => T {

@@ -10,9 +10,10 @@ def _build() = T.command {
   core.jar()
 }
 
-/** Run test. */
+/** Run tests. */
 def _test() = T.command {
   core.test.test()()
+  integrationTest.test()()
 }
 
 def _install() = T.command {
