@@ -2,8 +2,6 @@ package de.tobiasroeser.mill.osgi
 
 import java.util.Properties
 
-import scala.collection.immutable.Seq
-
 case class OsgiHeaders(
   `Bundle-ActivationPolicy`: Option[String] = None,
   `Bundle-Activator`: Option[String] = None,
