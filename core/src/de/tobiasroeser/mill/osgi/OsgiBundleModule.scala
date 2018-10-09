@@ -37,8 +37,8 @@ trait OsgiBundleModule extends JavaModule {
   }
 
   def bundleSymbolicName: T[String] = this match {
-    case _: PublishModule => T {
-      val artifact = this.asInstanceOf[PublishModule].artifactMetadata()
+    case pm: PublishModule => T {
+      val artifact = pm.artifactMetadata()
       calcBundleSymbolicName(artifact.group, artifact.id)
     }
     case _ =>
@@ -46,7 +46,7 @@ trait OsgiBundleModule extends JavaModule {
   }
 
   def bundleVersion: T[String] = this match {
-    case _: PublishModule => T { this.asInstanceOf[PublishModule].publishVersion() }
+    case pm: PublishModule => T { pm.publishVersion() }
     case _ => "0.0.0"
   }
 
