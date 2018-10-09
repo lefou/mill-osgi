@@ -1,5 +1,6 @@
 import ammonite.ops.home
 import ammonite.ops.ls
+import javax.management.openmbean.OpenType
 import mill._
 import mill.define.Module
 import mill.scalalib._
@@ -94,6 +95,11 @@ object core
 
 }
 
+object testsupport extends ScalaModule {
+  override def scalaVersion = "2.12.7"
+  override def moduleDeps = Seq(core)
+}
+
 import ammonite.ops._
 
 /**
@@ -130,6 +136,7 @@ object integrationTest extends Module {
 
     val libs = Seq(
       core.jar().path -> "mill-osgi.jar",
+      testsupport.jar().path -> "mill-osgi-testsupport.jar",
       resolve("slf4j-api-") -> "slf4j-api.jar",
       resolve("biz.aQute.bndlib-") -> "bndlib.jar"
     )
