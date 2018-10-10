@@ -18,21 +18,12 @@ def _test() = T.command {
 }
 
 def _install() = T.command {
-  _build()()
   _test()()
   core.publishLocal()()
-  core.publishM2Local()()
-  val a = core.artifactMetadata()
-  T.ctx().log.info(s"Installed ${a} into Ivy and Maven repository")
 }
 
-//def idea() = T.command {
-//  mill.scalalib.GenIdea.idea()
-//}
 
-object core
-  extends ScalaModule
-  with PublishModule {
+trait MillOsgiModule extends ScalaModule with PublishModule {
 
   def scalaVersion = "2.12.7"
 
@@ -49,6 +40,23 @@ object core
 
   def javacOptions = Seq("-source", "1.8", "-target", "1.8")
 
+  def pomSettings = T {
+    PomSettings(
+      description = "Mill module adding OSGi bundle support",
+      organization = "de.tototec",
+      url = "https://github.com/lefou/mill-osgi",
+      licenses = Seq(License.`Apache-2.0`),
+      versionControl = VersionControl.github("lefou", "mill-osgi"),
+      developers = Seq(Developer("lefou", "Tobias Roeser", "https.//github.com/lefou"))
+    )
+  }
+
+}
+
+object core extends MillOsgiModule {
+
+  override def artifactName = "de.tobiasroeser.mill.osgi"
+
   def ivyDeps = Agg(
     Deps.bndlib,
     Deps.slf4j,
@@ -61,40 +69,16 @@ object core
     override def ivyDeps = Agg(
       Deps.scalaTest
     )
-
     def testFrameworks = Seq("org.scalatest.tools.Framework")
 
   }
 
-  override def artifactName = "de.tobiasroeser.mill.osgi"
-
-  def pomSettings = T {
-    PomSettings(
-      description = "Mill module adding OSGi bundle support",
-      organization = "de.tototec",
-      url = "https://github.com/lefou/mill-osgi",
-      licenses = Seq(License.`Apache-2.0`),
-      versionControl = VersionControl.github("lefou", "mill-osgi"),
-      developers = Seq(Developer("lefou", "Tobias Roeser", "https.//github.com/lefou"))
-    )
-  }
-
-  /** Publish to the local Maven repository */
-  def publishM2Local() = T.command {
-    new LocalM2Publisher(home / ".m2" / "repository")
-      .publish(
-        jar = jar().path,
-        sourcesJar = sourceJar().path,
-        docJar = docJar().path,
-        pom = pom().path,
-        artifact = artifactMetadata()
-      )
-  }
-
 }
 
-object testsupport extends ScalaModule {
-  override def scalaVersion = "2.12.7"
+object testsupport extends MillOsgiModule {
+
+  override def artifactName = "mill-osgi-testsupport"
+
   override def moduleDeps = Seq(core)
 }
 
@@ -129,8 +113,6 @@ object integrationTest extends Module {
       core.runClasspath().find(pr =>
         pr.path.last.startsWith(name)).get.path
     }
-
-    //    pr.path.last.startsWith("bnd-")
 
     val libs = Seq(
       core.jar().path -> "mill-osgi.jar",
@@ -189,36 +171,8 @@ object integrationTest extends Module {
     println(s"\nSucceeded tests: ${succeeded.size}\n${succeeded.mkString("\n", "\n", "")}")
     println(s"\nFailed tests: ${failed.size}\n${failed.mkString("\n", "\n", "")}")
 
-    if(!failed.isEmpty) throw new AssertionError(s"${failed.size} integration test(s) failed")
+    if (!failed.isEmpty) throw new AssertionError(s"${failed.size} integration test(s) failed")
 
-  }
-
-}
-
-class LocalM2Publisher(m2Repo: Path) {
-
-  def publish(
-    jar: Path,
-    sourcesJar: Path,
-    docJar: Path,
-    pom: Path,
-    artifact: Artifact
-  ): Unit = {
-    val releaseDir = m2Repo / artifact.group.split("[.]") / artifact.id / artifact.version
-    writeFiles(
-      jar -> releaseDir / s"${artifact.id}-${artifact.version}.jar",
-      sourcesJar -> releaseDir / s"${artifact.id}-${artifact.version}-sources.jar",
-      docJar -> releaseDir / s"${artifact.id}-${artifact.version}-javadoc.jar",
-      pom -> releaseDir / s"${artifact.id}-${artifact.version}.pom"
-    )
-  }
-
-  private def writeFiles(fromTo: (Path, Path)*): Unit = {
-    fromTo.foreach {
-      case (from, to) =>
-        mkdir(to / up)
-        cp.over(from, to)
-    }
   }
 
 }
