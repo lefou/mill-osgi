@@ -66,9 +66,7 @@ object core
 
   }
 
-  override def artifactName: T[String] = T {
-    "mill-osgi"
-  }
+  override def artifactName = "de.tobiasroeser.mill.osgi"
 
   def pomSettings = T {
     PomSettings(
