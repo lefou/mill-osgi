@@ -1,5 +1,7 @@
 = mill-osgi - Build OSGi Bundles with mill
 :mill-osgi-version: 0.0.1
+:toc:
+:toc-placement: preamble
 
 
 Plug-in to build OSGi bundles with the https://github.com/lihaoyi/mill[mill build tool]
