@@ -73,7 +73,7 @@ object core
   def pomSettings = T {
     PomSettings(
       description = "Mill module adding OSGi bundle support",
-      organization = "de.tobiasroeser",
+      organization = "de.tototec",
       url = "https://github.com/lefou/mill-osgi",
       licenses = Seq(License.`Apache-2.0`),
       versionControl = VersionControl.github("lefou", "mill-osgi"),
