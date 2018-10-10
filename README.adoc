@@ -1,4 +1,29 @@
 = mill-osgi - Build OSGi Bundles with mill
+:mill-osgi-version: 0.0.1
 
-Mill plug-in to build OSGi bundles with the https://github.com/lihaoyi/mill[mill build tool]
 
+Plug-in to build OSGi bundles with the https://github.com/lihaoyi/mill[mill build tool]
+
+== Quickstart
+
+.File: build.sc
+[source,scala,subs="verbatim,attributes"]
+----
+import $ivy.`de.tototec::de.tobiasroeser.mill.osgi:{mill-osgi-version}`
+import de.tobiasroeser.mill.osgi._
+
+object project extends ScalaModule with OsgiBundleModule {
+
+  def bundleSymbolicName = "com.example.project"
+
+  def osgiHeaders = osgiHeaders().copy(
+    `Export-Package` -> Seq("com.example.api"),
+    `Bundle-Activator` -> Some("com.example.internal.Activator")
+  )
+
+}
+----
+
+== License
+
+Apache License, version 2
