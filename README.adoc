@@ -8,7 +8,7 @@ Plug-in to build OSGi bundles with the https://github.com/lihaoyi/mill[mill buil
 
 == Quickstart
 
-.File: build.sc
+.File: `build.sc`
 [source,scala,subs="verbatim,attributes"]
 ----
 import $ivy.`de.tototec::de.tobiasroeser.mill.osgi:{mill-osgi-version}`
