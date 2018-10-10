@@ -36,7 +36,7 @@ object core
 
   def scalaVersion = "2.12.7"
 
-  def publishVersion = "0.0.1"
+  def publishVersion = "0.0.2-SNAPSHOT"
 
   object Deps {
     val bndlib = ivy"biz.aQute.bnd:biz.aQute.bndlib:4.0.0"
