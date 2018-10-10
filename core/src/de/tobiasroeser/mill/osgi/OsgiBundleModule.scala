@@ -36,6 +36,11 @@ trait OsgiBundleModule extends JavaModule {
     osgiBundle()
   }
 
+  /**
+    * The bundle symbolic name used to initialize [[osgiHeaders]].
+    * If the module is a [[PublishModule]], it calculated the bundle symbolic name
+    * from [[PublishModule.artifactMetadata]]
+    */
   def bundleSymbolicName: T[String] = this match {
     case pm: PublishModule => T {
       val artifact = pm.artifactMetadata()
@@ -45,6 +50,10 @@ trait OsgiBundleModule extends JavaModule {
       millModuleSegments.parts.mkString(".")
   }
 
+  /**
+    * The bundle version used to initialize [[osgiHeaders]].
+    * If the module is a [[PublishModule]], it uses the [[PublishModule.publishVersion]]
+    */
   def bundleVersion: T[String] = this match {
     case pm: PublishModule => T { pm.publishVersion() }
     case _ => "0.0.0"
