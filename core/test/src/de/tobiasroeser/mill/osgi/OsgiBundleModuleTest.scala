@@ -11,7 +11,8 @@ class OsgiBundleModuleTest extends FreeSpec {
       "a.b.c" -> "c.d" -> "a.b.c.d",
       "a.b.c" -> "c-d-e" -> "a.b.c.d.e",
       "a.b.c" -> "c-d.e" -> "a.b.c.d.e",
-      "a-b.c" -> "d.e" -> "a-b.c.d.e"
+      "a-b.c" -> "d.e" -> "a-b.c.d.e",
+      "a.b" -> "a.b.c" -> "a.b.c"
     ).foreach {
         case (pair, expected) => s"${pair} should result in ${expected}" in {
           assert((OsgiBundleModule.calcBundleSymbolicName _).tupled(pair) === expected)

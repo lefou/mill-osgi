@@ -202,11 +202,13 @@ object OsgiBundleModule {
     val groupParts = group.split("[.]")
     val nameParts = artifact.split("[.]").flatMap(_.split("[-]"))
 
-    val parts = (groupParts.lastOption, nameParts.headOption) match {
-      case (Some(last), Some(head)) if last == head => groupParts ++ nameParts.tail
-      case (Some(last), Some(head)) if head.startsWith(last) => groupParts.take(groupParts.size - 1) ++ nameParts
-      case _ => groupParts ++ nameParts
-    }
+    val parts =
+      if (nameParts.startsWith(groupParts)) nameParts
+      else (groupParts.lastOption, nameParts.headOption) match {
+        case (Some(last), Some(head)) if last == head => groupParts ++ nameParts.tail
+        case (Some(last), Some(head)) if head.startsWith(last) => groupParts.take(groupParts.size - 1) ++ nameParts
+        case _ => groupParts ++ nameParts
+      }
 
     parts.mkString(".")
   }
