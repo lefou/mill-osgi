@@ -22,7 +22,9 @@ trait OsgiBundleModule extends JavaModule {
   import OsgiBundleModule._
 
   /**
-   * The transitive version of `localClasspath` but using the final jar where possible
+   * The transitive version of `localClasspath`.
+   * This overrides [[JavaModule.transitiveLocalClasspath]], but uses the final
+   * JAR files instead of just the classes directories where possible.
    */
   override def transitiveLocalClasspath: T[Agg[PathRef]] = T {
     Task.traverse(recursiveModuleDeps) { m =>
@@ -32,6 +34,10 @@ trait OsgiBundleModule extends JavaModule {
     }().flatten
   }
 
+  /**
+   * Build the final bundle.
+   * Overrides [[JavaModule.jar]] and links to [[osgiBundle]] instead.
+   */
   override def jar: T[PathRef] = T {
     osgiBundle()
   }
@@ -88,14 +94,18 @@ trait OsgiBundleModule extends JavaModule {
   }
 
   /**
-   * Iff `true` include sources in the final bundle (under `OSGI-OPT/src`).
+   * Iff `true` include sources in the final bundle under `OSGI-OPT/src`.
    */
   def includeSources: T[Boolean] = T {
     false
   }
 
+  /**
+   * Resources to include into the final bundle.
+   * Defaults to include [[JavaModule.resources()]].
+   */
   def includeResource: T[Seq[String]] = T {
-    // Add contents of resources to final bundle
+    // default: add contents of resources to final bundle
     resources()
       // only take non-empty directories to avoid bnd warning/error
       .filter(p => p.path.toIO.exists()) //  && Option(p.path.toIO.list()).map(!_.isEmpty).getOrElse(false))
@@ -105,10 +115,18 @@ trait OsgiBundleModule extends JavaModule {
 
   // TODO: do we want support default Mill Jar headers?
 
+  /**
+   * Additional headers to add to the bundle manifest.
+   * Warning: All headers added here will override their previous value,
+   * hence, be careful to not add standard OSGi headers here, but via [[osgiHeaders]].
+   */
   def additionalHeaders: T[Map[String, String]] = T {
     Map[String, String]()
   }
 
+  /**
+   * Build the OSGi Bundle.
+   */
   def osgiBundle: T[PathRef] = T {
     val log = T.ctx().log
 
