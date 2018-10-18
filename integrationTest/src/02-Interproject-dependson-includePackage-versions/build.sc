@@ -16,15 +16,19 @@ val projVersion = "1.0.0"
 def _verify() = T.command {
 
   withManifest(proj1.jar().path) { manifest =>
-    check(manifest, "Export-Package", Seq("proj1;", s"""version="${projVersion}""""))
+    checkExact(manifest, "Bundle-SymbolicName", "proj1")
+    checkExact(manifest, "Bundle-Version", projVersion)
+    checkSlices(manifest, "Export-Package", Seq("proj1;", s"""version="${projVersion}""""))
   }
 
   withManifest(proj2.jar().path) { manifest =>
-    check(manifest, "Export-Package", Seq("proj2;", s"""version="${projVersion}""""))
+    checkExact(manifest, "Bundle-SymbolicName", "proj2")
+    checkExact(manifest, "Bundle-Version", projVersion)
+    checkSlices(manifest, "Export-Package", Seq("proj2;", s"""version="${projVersion}""""))
 
     val rangeFrom = projVersion.split("[.]").take(2).mkString(".")
     val rangeTo = projVersion.split("[.]").head.toInt + 1
-    check(manifest, "Import-Package", Seq(s"""proj1;version="[${rangeFrom},${rangeTo})""""))
+    checkSlices(manifest, "Import-Package", Seq(s"""proj1;version="[${rangeFrom},${rangeTo})""""))
   }
 
 }

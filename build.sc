@@ -168,8 +168,8 @@ object integrationTest extends Module {
 
     val (succeeded, failed) = results.partition(_.exitCode == 0)
 
-    println(s"\nSucceeded tests: ${succeeded.size}\n${succeeded.mkString("\n", "\n", "")}")
-    println(s"\nFailed tests: ${failed.size}\n${failed.mkString("\n", "\n", "")}")
+    println(s"\nSucceeded integration tests: ${succeeded.size}\n${succeeded.mkString("\n", "\n", "")}")
+    println(s"\nFailed integration tests: ${failed.size}\n${failed.mkString("\n", "\n", "")}")
 
     if (!failed.isEmpty) throw new AssertionError(s"${failed.size} integration test(s) failed")
 

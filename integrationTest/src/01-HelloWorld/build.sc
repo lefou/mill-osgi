@@ -5,9 +5,12 @@ import de.tobiasroeser.mill.osgi._
 import de.tobiasroeser.mill.osgi.testsupport._
 
 def _verify() = T.command {
-  TestSupport.withManifest(hello.jar().path) { manifest =>
-    TestSupport.check(manifest, "Manifest-Version", Seq("1.0"))
-    TestSupport.check(manifest, "Private-Package", Seq("example"))
+  import TestSupport._
+  withManifest(hello.jar().path) { manifest =>
+    checkExact(manifest, "Manifest-Version", "1.0")
+    checkExact(manifest, "Bundle-SymbolicName", "hello")
+    checkExact(manifest, "Bundle-Version", "0.0.0")
+    checkSlices(manifest, "Private-Package", Seq("example"))
   }
 }
 

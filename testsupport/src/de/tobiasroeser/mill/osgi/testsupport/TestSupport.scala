@@ -20,10 +20,17 @@ trait TestSupport {
     }
   }
 
-  def check(manifest: Manifest, header: String, expectedSlices: Seq[String]) = {
+  def checkSlices(manifest: Manifest, header: String, expectedSlices: Seq[String]) = {
     val value = manifest.getMainAttributes().getValue(header)
     if (!expectedSlices.forall(s => value.containsSlice(s))) {
-      sys.error(s"""Expected '${header}' header with ${expectedSlices.mkString("'", "' and '", "'")}! But was '${value}'""")
+      sys.error(s"""Expected '${header}' header with slices ${expectedSlices.mkString("'", "' and '", "'")}! But was '${value}'""")
+    }
+  }
+
+  def checkExact(manifest: Manifest, header: String, expectedValue: String) = {
+    val value = manifest.getMainAttributes().getValue(header)
+    if (expectedValue != value) {
+      sys.error(s"""Expected '${header}' header with value '${expectedValue}'! But was '${value}'""")
     }
   }
 
