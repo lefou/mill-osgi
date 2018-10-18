@@ -1,5 +1,5 @@
 = mill-osgi - Build OSGi Bundles with mill
-:mill-osgi-version: 0.0.1
+:mill-osgi-version: 0.0.2
 :toc:
 :toc-placement: preamble
 
@@ -32,7 +32,7 @@ Apache License, version 2
 
 == Changelog
 
-=== mill-osgi 0.0.2 - _not yet released_
+=== mill-osgi 0.0.2 - 2018-10-18
 
 * Improved default bundle symbolic name algorithm
 * Added support for -includeresource
