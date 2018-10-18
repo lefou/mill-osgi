@@ -37,39 +37,44 @@ trait OsgiBundleModule extends JavaModule {
   }
 
   /**
-    * The bundle symbolic name used to initialize [[osgiHeaders]].
-    * If the module is a [[PublishModule]], it calculated the bundle symbolic name
-    * from [[PublishModule.artifactMetadata]]
-    */
+   * The bundle symbolic name used to initialize [[osgiHeaders]].
+   * If the module is a [[PublishModule]], it calculated the bundle symbolic name
+   * from [[PublishModule.artifactMetadata]]
+   */
   def bundleSymbolicName: T[String] = this match {
     case pm: PublishModule => T {
-      val artifact = pm.artifactMetadata()
-      calcBundleSymbolicName(artifact.group, artifact.id)
+      calcBundleSymbolicName(pm.pomSettings().organization, artifactName())
     }
     case _ =>
-      millModuleSegments.parts.mkString(".")
+      artifactName()
   }
 
   /**
-    * The bundle version used to initialize [[osgiHeaders]].
-    * If the module is a [[PublishModule]], it uses the [[PublishModule.publishVersion]]
-    */
+   * The bundle version used to initialize [[osgiHeaders]].
+   * If the module is a [[PublishModule]], it uses the [[PublishModule.publishVersion]]
+   */
   def bundleVersion: T[String] = this match {
     case pm: PublishModule => T { pm.publishVersion() }
     case _ => "0.0.0"
   }
 
   /**
-   * Create a reproducible bundle files.
+   * Instruct bnd to create a reproducible bundle file.
    */
   def reproducibleBundle: T[Boolean] = T {
     true
   }
 
+  /**
+   * Embed these JAR files and also add them to the bundle classpath.
+   */
   def embeddedJars: T[Seq[PathRef]] = T {
     Seq[PathRef]()
   }
 
+  /**
+   * Embed the content of the given JAR files into the bundle.
+   */
   def explodedJars: T[Seq[PathRef]] = T {
     Seq[PathRef]()
   }
@@ -83,10 +88,19 @@ trait OsgiBundleModule extends JavaModule {
   }
 
   /**
-   * Include sources in the final bundle (under `OSGI-OPT/src`)
+   * Iff `true` include sources in the final bundle (under `OSGI-OPT/src`).
    */
   def includeSources: T[Boolean] = T {
     false
+  }
+
+  def includeResource: T[Seq[String]] = T {
+    // Add contents of resources to final bundle
+    resources()
+      // only take non-empty directories to avoid bnd warning/error
+      .filter(p => p.path.toIO.exists()) //  && Option(p.path.toIO.list()).map(!_.isEmpty).getOrElse(false))
+      // add to the root of the JAR
+      .map(dir => dir.path.toIO.getAbsolutePath())
   }
 
   // TODO: do we want support default Mill Jar headers?
@@ -97,16 +111,14 @@ trait OsgiBundleModule extends JavaModule {
 
   def osgiBundle: T[PathRef] = T {
     val log = T.ctx().log
-    log.info("bnd info: Packaging bundle")
 
     val builder = new Builder()
     if (reproducibleBundle()) {
-      log.info("bnd info: Enabling reproducible mode")
       builder.setProperty(Constants.REPRODUCIBLE, "true")
     }
 
     // TODO: check if all dependencies have proper Manifests (are bundled as jars instead of class folders)
-    val bndClasspath = (compileClasspath() ++ localClasspath()).toList.map(p => p.path.toIO).asJava
+    val bndClasspath = (compileClasspath() ++ localClasspath()).toList.map(p => p.path.toIO).filter(_.exists()).asJava
     builder.setClasspath(bndClasspath)
 
     // TODO: scan classes directory and auto-add all dirs as private package
@@ -115,7 +127,6 @@ trait OsgiBundleModule extends JavaModule {
     val packages = ps.filter(_.isFile).flatMap { pFull =>
       val p = pFull.relativeTo(classesPath)
       if (p.segments.size > 1) {
-        println("level " + p.segments.size + " file " + p)
         Seq((p / ammonite.ops.up).segments.mkString("."))
       } else {
         // Find way to include top-level package
@@ -152,10 +163,8 @@ trait OsgiBundleModule extends JavaModule {
 
     // TODO: handle special props with defaults
 
-    // Add contents of resources to final bundle
-    resources().filter(_.path.toIO.exists()).foreach { dir =>
-      mergeSeqProps(builder, Constants.INCLUDERESOURCE, Seq(dir.path.toIO.getAbsolutePath()))
-    }
+    // handle included resources
+    mergeSeqProps(builder, Constants.INCLUDERESOURCE, includeResource())
 
     // handle embedded Jars
     embeddedJars().foreach { jar =>
@@ -171,15 +180,15 @@ trait OsgiBundleModule extends JavaModule {
 
     builder.addProperties(additionalHeaders().asJava)
 
-    log.info("bnd info: About to build bundle")
-    println("Props:" + builder.getProperties().asScala.toList.map {
-      case (k, v) =>
-        if (v.indexOf(",") > 0) {
-          s"${k}:\n    ${v.split("[,]").mkString(",\n    ")}"
-        } else {
-          s"${k}: ${v}"
-        }
-    }.mkString("\n  "))
+    //    println("Props:" + builder.getProperties().asScala.toList.map {
+    //      case (k, v) =>
+    //        if (v.indexOf(",") > 0) {
+    //          s"${k}:\n    ${v.split("[,]").mkString(",\n    ")}"
+    //        } else {
+    //          s"${k}: ${v}"
+    //        }
+    //    }.mkString("\n  "))
+
     val jar = builder.build()
 
     builder.getErrors().asScala.foreach(msg => log.error("bnd error: " + msg))
