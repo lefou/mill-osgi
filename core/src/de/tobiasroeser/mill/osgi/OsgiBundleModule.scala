@@ -168,10 +168,9 @@ trait OsgiBundleModule extends JavaModule {
       builder.setProperty(Constants.SOURCEPATH, dir.path.toIO.getAbsolutePath())
     }
 
-    //    builder.setProperty(Constants.SOURCES, includeSources().toString())
     if (includeSources()) {
       mergeSeqProps(builder, Constants.INCLUDERESOURCE,
-        allSources().map(s => "OSGI-OPT/src=" + s.path.toIO.getAbsolutePath()).toList)
+        allSources().filter(_.path.toIO.exists()).map(s => "OSGI-OPT/src=" + s.path.toIO.getAbsolutePath()).toList)
     }
 
     // TODO: Some validation that should at least war
