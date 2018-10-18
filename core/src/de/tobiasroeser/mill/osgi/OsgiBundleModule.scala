@@ -56,7 +56,9 @@ trait OsgiBundleModule extends JavaModule {
    * If the module is a [[PublishModule]], it uses the [[PublishModule.publishVersion]]
    */
   def bundleVersion: T[String] = this match {
-    case pm: PublishModule => T { pm.publishVersion() }
+    case pm: PublishModule => T {
+      pm.publishVersion()
+    }
     case _ => "0.0.0"
   }
 
@@ -81,12 +83,29 @@ trait OsgiBundleModule extends JavaModule {
     Seq[PathRef]()
   }
 
-  def osgiHeaders: T[OsgiHeaders] = T {
-    OsgiHeaders(
-      `Bundle-SymbolicName` = bundleSymbolicName(),
-      `Bundle-Version` = Option(bundleVersion()),
+  def osgiHeaders: T[OsgiHeaders] = {
+    def withDefaults: OsgiHeaders => OsgiHeaders = h => h.copy(
       `Import-Package` = Seq("*")
     )
+
+    this match {
+      case pm: PublishModule => T {
+        val pom = pm.pomSettings()
+        withDefaults(OsgiHeaders(
+          `Bundle-SymbolicName` = bundleSymbolicName(),
+          `Bundle-Version` = Option(bundleVersion()),
+          `Bundle-License` = pom.licenses.map(l => l.url.toString),
+          `Bundle-Vendor` = Option(pom.organization),
+          `Bundle-Description` = Option(pom.description)
+        ))
+      }
+      case _ => T {
+        withDefaults(OsgiHeaders(
+          `Bundle-SymbolicName` = bundleSymbolicName(),
+          `Bundle-Version` = Option(bundleVersion()),
+        ))
+      }
+    }
   }
 
   /**
