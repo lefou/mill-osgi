@@ -32,6 +32,14 @@ Apache License, version 2
 
 == Changelog
 
+=== mill-osgi 0.0.2 - _not yet released_
+
+* Improved default bundle symbolic name algorithm
+* Added support for -includeresource
+* Improved source docs
+* Don't add non-existing resources to avoid bnd warnings/errors
+* Add more default headers when project is a `PublishModule` 
+
 === mill-osgi 0.0.1 - 2018-10-10
 
 * Initial early release to gain user feedback
