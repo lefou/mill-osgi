@@ -21,7 +21,6 @@ case class OsgiHeaders(
   //  `Bundle-UpdateLocation`: Option[String] = None,
   `Bundle-Vendor`: Option[String] = None,
   `Bundle-Version`: Option[String] = None,
-  `Bundle-Developers`: Option[String] = None,
   `Bundle-Contributors`: Option[String] = None,
   `Bundle-SCM`: Option[String] = None,
   `DynamicImport-Package`: Seq[String] = Seq.empty,
@@ -69,7 +68,6 @@ case class OsgiHeaders(
     //    addProp("Bundle-UpdateLocation", `Bundle-UpdateLocation`)
     addProp("Bundle-Vendor", `Bundle-Vendor`)
     addProp("Bundle-Version", `Bundle-Version`)
-    addProp("Bundle-Developers", `Bundle-Developers`)
     addProp("Bundle-Contributors", `Bundle-Contributors`)
     addProp("Bundle-SCM", `Bundle-SCM`)
     addProp("DynamicImport-Package", `DynamicImport-Package`)

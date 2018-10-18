@@ -1,7 +1,5 @@
 package de.tobiasroeser.mill.osgi
 
-import java.util.Properties
-
 import scala.collection.JavaConverters._
 
 import aQute.bnd.osgi.Builder
@@ -10,8 +8,6 @@ import ammonite.ops.LsSeq
 import ammonite.ops.mkdir
 import ammonite.ops.rm
 import mill._
-import mill.define.Target
-import mill.define.Target.apply
 import mill.define.Task
 import mill.eval.PathRef
 import mill.scalalib.JavaModule
