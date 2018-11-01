@@ -19,7 +19,7 @@ object project extends ScalaModule with OsgiBundleModule {
   def bundleSymbolicName = "com.example.project"
 
   def osgiHeaders = T{ osgiHeaders().copy(
-    `Export-Package` = Seq("com.example.api"),
+    `Export-Package`   = Seq("com.example.api"),
     `Bundle-Activator` = Some("com.example.internal.Activator")
   )}
 
