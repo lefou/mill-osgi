@@ -18,6 +18,7 @@ def _test() = T.command {
 }
 
 def _install() = T.command {
+  T.ctx().log.info("Installing")
   _test()()
   core.publishLocal()()
 }
@@ -32,8 +33,8 @@ trait MillOsgiModule extends ScalaModule with PublishModule {
   object Deps {
     val bndlib = ivy"biz.aQute.bnd:biz.aQute.bndlib:4.0.0"
     val logbackClassic = ivy"ch.qos.logback:logback-classic:1.1.3"
-    val millMain = ivy"com.lihaoyi::mill-main:0.2.8"
-    val millScalalib = ivy"com.lihaoyi::mill-scalalib:0.2.8"
+    val millMain = ivy"com.lihaoyi::mill-main:0.3.2"
+    val millScalalib = ivy"com.lihaoyi::mill-scalalib:0.3.2"
     val scalaTest = ivy"org.scalatest::scalatest:3.0.1"
     val slf4j = ivy"org.slf4j:slf4j-api:1.7.25"
   }
@@ -59,7 +60,10 @@ object core extends MillOsgiModule {
 
   def ivyDeps = Agg(
     Deps.bndlib,
-    Deps.slf4j,
+    Deps.slf4j
+  )
+
+  def compileIvyDeps = Agg(
     Deps.millMain,
     Deps.millScalalib
   )
@@ -76,6 +80,11 @@ object core extends MillOsgiModule {
 }
 
 object testsupport extends MillOsgiModule {
+
+  def compileIvyDeps = Agg(
+    Deps.millMain,
+    Deps.millScalalib
+  )
 
   override def artifactName = "mill-osgi-testsupport"
 
