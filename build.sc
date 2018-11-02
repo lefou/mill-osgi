@@ -12,9 +12,9 @@ def _build() = T.command {
 }
 
 /** Run tests. */
-def _test() = T.command {
+def _test(millExe: String = "mill") = T.command {
   core.test.test()()
-  integrationTest.test()()
+  integrationTest.test(millExe)()
 }
 
 def _install() = T.command {
@@ -23,6 +23,14 @@ def _install() = T.command {
   core.publishLocal()()
 }
 
+/** Test and release to Maven Central. */
+def _release(
+  sonatypeCreds: String,
+  release: Boolean = true
+) = T.command {
+  _test()()
+  core.publish(sonatypeCreds = sonatypeCreds, release = release)()
+}
 
 trait MillOsgiModule extends ScalaModule with PublishModule {
 
@@ -114,7 +122,7 @@ object integrationTest extends Module {
   }
 
   /** Run the tests. */
-  def test() = T.command {
+  def test(millExe: String = "mill") = T.command {
     val tests = testCases()
     mkdir(T.ctx().dest)
 
@@ -167,7 +175,7 @@ object integrationTest extends Module {
 
       // run mill with _verify target in test path
       val result = try {
-        %%("mill", "_verify")(testPath)
+        %%(millExe, "_verify")(testPath)
       } catch {
         case e: ShelloutException => e.result
       }
