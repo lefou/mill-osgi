@@ -1,5 +1,5 @@
 = mill-osgi - Build OSGi Bundles with mill
-:mill-osgi-version: 0.0.2
+:mill-osgi-version: 0.0.3
 :toc:
 :toc-placement: preamble
 
@@ -48,6 +48,11 @@ If the organization or the last segment of the organization is a prefix of the a
 Apache License, version 2
 
 == Changelog
+
+=== mill-osgi 0.0.3 - 2018-11-02
+
+* Changed packaging / pom dependency information so that loading
+  into mill excludes mill dependencies
 
 === mill-osgi 0.0.2 - 2018-10-18
 
