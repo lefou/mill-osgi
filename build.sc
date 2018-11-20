@@ -1,7 +1,3 @@
-import ammonite.ops.home
-import ammonite.ops.ls
-import javax.management.openmbean.OpenType
-import mill._
 import mill.define.Module
 import mill.scalalib._
 import mill.scalalib.publish._
@@ -36,6 +32,8 @@ trait MillOsgiModule extends ScalaModule with PublishModule {
 
   def scalaVersion = "2.12.7"
 
+  def ivyDeps = T { Agg(ivy"org.scala-lang:scala-library:${scalaVersion()}") }
+
   def publishVersion = "0.0.4-SNAPSHOT"
 
   object Deps {
@@ -66,10 +64,12 @@ object core extends MillOsgiModule {
 
   override def artifactName = "de.tobiasroeser.mill.osgi"
 
-  def ivyDeps = Agg(
-    Deps.bndlib,
-    Deps.slf4j
-  )
+  def ivyDeps = T {
+    super.ivyDeps() ++ Agg(
+      Deps.bndlib,
+      Deps.slf4j
+    )
+  }
 
   def compileIvyDeps = Agg(
     Deps.millMain,
