@@ -34,7 +34,7 @@ trait MillOsgiModule extends ScalaModule with PublishModule {
 
   def ivyDeps = T { Agg(ivy"org.scala-lang:scala-library:${scalaVersion()}") }
 
-  def publishVersion = "0.0.4-SNAPSHOT"
+  def publishVersion = "0.0.4"
 
   object Deps {
     val bndlib = ivy"biz.aQute.bnd:biz.aQute.bndlib:4.0.0"

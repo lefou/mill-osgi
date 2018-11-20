@@ -1,5 +1,5 @@
 = mill-osgi - Build OSGi Bundles with mill
-:mill-osgi-version: 0.0.3
+:mill-osgi-version: 0.0.4
 :toc:
 :toc-placement: preamble
 
@@ -48,6 +48,10 @@ If the organization or the last segment of the organization is a prefix of the a
 Apache License, version 2
 
 == Changelog
+
+=== mill-osgi 0.0.4 - 2018-11-20
+
+* Added explicit scala-library dependency to released pom.xml
 
 === mill-osgi 0.0.3 - 2018-11-02
 
