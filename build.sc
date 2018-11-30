@@ -37,6 +37,7 @@ trait MillOsgiModule extends ScalaModule with PublishModule {
   def publishVersion = "0.0.5-SNAPSHOT"
 
   object Deps {
+    val ammonite = ivy"com.lihaoyi:::ammonite:1.3.2"
     val bndlib = ivy"biz.aQute.bnd:biz.aQute.bndlib:4.0.0"
     val logbackClassic = ivy"ch.qos.logback:logback-classic:1.1.3"
     val millMain = ivy"com.lihaoyi::mill-main:0.3.2"
@@ -67,7 +68,8 @@ object core extends MillOsgiModule {
   def ivyDeps = T {
     super.ivyDeps() ++ Agg(
       Deps.bndlib,
-      Deps.slf4j
+      Deps.slf4j,
+      Deps.ammonite
     )
   }
 
