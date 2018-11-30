@@ -10,6 +10,7 @@ jdk:
 
 env:
   - MILL_VERSION=0.2.8
+  - MILL_VERSION=0.3.4
   - MILL_VERSION=0.3.5
 
 script:

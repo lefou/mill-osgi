@@ -189,7 +189,7 @@ object integrationTest extends Module {
     println(s"\nSucceeded integration tests: ${succeeded.size}\n${succeeded.mkString("\n", "\n", "")}")
     println(s"\nFailed integration tests: ${failed.size}\n${failed.mkString("\n", "\n", "")}")
 
-    T.ctx().log.info(s"Integration tests: ${tests.size}, ${succeeded.size} success, ${failed.size} failed")
+    T.ctx().log.info(s"Integration tests: ${tests.size}, ${succeeded.size} succeeded, ${failed.size} failed")
 
     if (!failed.isEmpty) throw new AssertionError(s"${failed.size} integration test(s) failed")
 
