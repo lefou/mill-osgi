@@ -174,8 +174,9 @@ object integrationTest extends Module {
         "import $cp.^.lib.`" + lib._2 + "`\n"))
 
       // run mill with _verify target in test path
+      // -i ensures, we do not spawn a mill-worker process
       val result = try {
-        %%(millExe, "_verify")(testPath)
+        %%(millExe, "-i", "_verify")(testPath)
       } catch {
         case e: ShelloutException => e.result
       }
@@ -187,6 +188,8 @@ object integrationTest extends Module {
 
     println(s"\nSucceeded integration tests: ${succeeded.size}\n${succeeded.mkString("\n", "\n", "")}")
     println(s"\nFailed integration tests: ${failed.size}\n${failed.mkString("\n", "\n", "")}")
+
+    T.ctx().log.info(s"Integration tests: ${tests.size}, ${succeeded.size} success, ${failed.size} failed")
 
     if (!failed.isEmpty) throw new AssertionError(s"${failed.size} integration test(s) failed")
 
