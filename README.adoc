@@ -1,4 +1,5 @@
 = mill-osgi - Build OSGi Bundles with mill
+:mill-min-version: 0.3.5
 :mill-osgi-version: 0.0.4
 :toc:
 :toc-placement: preamble
@@ -11,6 +12,9 @@ Plug-in to build OSGi bundles with the https://github.com/lihaoyi/mill[mill buil
 .File: `build.sc`
 [source,scala,subs="verbatim,attributes"]
 ----
+// build.sc default imports
+import mill._, mill.scalalib._
+// This import the mill-osgi plugin
 import $ivy.`de.tototec::de.tobiasroeser.mill.osgi:{mill-osgi-version}`
 import de.tobiasroeser.mill.osgi._
 
@@ -18,13 +22,36 @@ object project extends ScalaModule with OsgiBundleModule {
 
   def bundleSymbolicName = "com.example.project"
 
-  def osgiHeaders = T{ osgiHeaders().copy(
+  def osgiHeaders = T{ super.osgiHeaders().copy(
     `Export-Package`   = Seq("com.example.api"),
     `Bundle-Activator` = Some("com.example.internal.Activator")
   )}
 
+  // other settings ...
+
 }
 ----
+
+Use mill {mill-min-version} or newer, to build the OSGi bundle.
+
+----
+$ mill project.osgiBundle
+[27/38] project.compile
+[info] Compiling 1 Scala source to /tmp/project/out/project/compile/dest/classes ...
+[info] Done compiling.
+[38/38] project.osgiBundle
+----
+
+Please note, that the default `jar` target is also overriden,
+so that it depends on `osgiBundle` and in fact it returns the exact same bundle.
+
+----
+$ mill show project.jar
+[1/1] show
+[39/39] project.jar
+"ref:14551bd1:/tmp/project/out/project/osgiBundle/dest/out.jar"
+----
+
 
 == Defaults
 
