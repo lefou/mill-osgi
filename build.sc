@@ -1,4 +1,5 @@
-import mill.define.Module
+import mill.define.{Module, TaskModule}
+import mill.eval.PathRef
 import mill.scalalib._
 import mill.scalalib.publish._
 
@@ -8,40 +9,40 @@ def _build() = T.command {
 }
 
 /** Run tests. */
-def _test(millExe: String = "mill") = T.command {
+def test(millExe: String = "mill") = T.command {
   core.test.test()()
   integrationTest.test(millExe)()
 }
 
-def _install() = T.command {
+def install() = T.command {
   T.ctx().log.info("Installing")
-  _test()()
+  test()()
   core.publishLocal()()
 }
 
 /** Test and release to Maven Central. */
-def _release(
+def release(
   sonatypeCreds: String,
   release: Boolean = true
 ) = T.command {
-  _test()()
+  test()()
   core.publish(sonatypeCreds = sonatypeCreds, release = release)()
 }
 
 trait MillOsgiModule extends ScalaModule with PublishModule {
 
-  def scalaVersion = "2.12.7"
+  def scalaVersion = T{ "2.12.8" }
 
   def ivyDeps = T { Agg(ivy"org.scala-lang:scala-library:${scalaVersion()}") }
 
-  def publishVersion = "0.0.5-SNAPSHOT"
+  def publishVersion = GitSupport.publishVersion()._2
 
   object Deps {
     val ammonite = ivy"com.lihaoyi:::ammonite:1.3.2"
     val bndlib = ivy"biz.aQute.bnd:biz.aQute.bndlib:4.0.0"
     val logbackClassic = ivy"ch.qos.logback:logback-classic:1.1.3"
-    val millMain = ivy"com.lihaoyi::mill-main:0.3.2"
-    val millScalalib = ivy"com.lihaoyi::mill-scalalib:0.3.2"
+    val millMain = ivy"com.lihaoyi::mill-main:0.3.5"
+    val millScalalib = ivy"com.lihaoyi::mill-scalalib:0.3.5"
     val scalaTest = ivy"org.scalatest::scalatest:3.0.1"
     val slf4j = ivy"org.slf4j:slf4j-api:1.7.25"
   }
@@ -68,8 +69,7 @@ object core extends MillOsgiModule {
   def ivyDeps = T {
     super.ivyDeps() ++ Agg(
       Deps.bndlib,
-      Deps.slf4j,
-      Deps.ammonite
+      Deps.slf4j
     )
   }
 
@@ -101,8 +101,6 @@ object testsupport extends MillOsgiModule {
   override def moduleDeps = Seq(core)
 }
 
-import ammonite.ops._
-
 /**
  * Integration tests for the mill module.
  * You can provide new test cases by placing a project into `src/${NR}-${TESTNAME}`.
@@ -115,37 +113,35 @@ import ammonite.ops._
  * import $exec.plugin
  * }}}
  */
-object integrationTest extends Module {
+object integrationTest extends TaskModule {
+
+  def defaultCommandName = "test"
 
   /** Provide the test cases */
   def testCases = T.input {
     val src = millSourcePath / 'src
-    ls(src).filter(_.isDir).map(PathRef(_))
+    os.list(src).filter(_.toIO.isDirectory()).map(PathRef(_))
   }
 
   /** Run the tests. */
   def test(millExe: String = "mill") = T.command {
+    import os._
+
+    // trigger published artifact
+    core.publishLocal()()
+    val coreArtifact = core.artifactMetadata()
+
+    testsupport.publishLocal()()
+    val testSupportArtifact = testsupport.artifactMetadata()
+
+    val pluginImport =
+      s"""// Import a locally published version of the plugin under test
+         |import $$ivy.`${coreArtifact.group}:${coreArtifact.id}:${coreArtifact.version}`
+         |import $$ivy.`${testSupportArtifact.group}:${testSupportArtifact.id}:${testSupportArtifact.version}`
+       """.stripMargin
+
     val tests = testCases()
-    mkdir(T.ctx().dest)
-
-    def resolve(name: String): Path = {
-      core.runClasspath().find(pr =>
-        pr.path.last.startsWith(name)).get.path
-    }
-
-    val libs = Seq(
-      core.jar().path -> "mill-osgi.jar",
-      testsupport.jar().path -> "mill-osgi-testsupport.jar",
-      resolve("slf4j-api-") -> "slf4j-api.jar",
-      resolve("biz.aQute.bndlib-") -> "bndlib.jar"
-    )
-
-    val libPath = T.ctx().dest / 'lib
-    mkdir(libPath)
-    libs.foreach { lib =>
-      // copy plugin here
-      cp(lib._1, libPath / lib._2)
-    }
+    os.makeDir.all(T.ctx().dest)
 
     case class TestCase(name: String, exitCode: Int, out: Seq[String], err: Seq[String]) {
       override def toString(): String =
@@ -166,23 +162,22 @@ object integrationTest extends Module {
       T.ctx().log.info("Running integration test: " + t.path.last)
 
       // start clean
-      rm(testPath)
+      remove.all(testPath)
 
       // copy test project here
-      cp(t.path, testPath)
+      copy(from = t.path, to = testPath, createFolders = true)
 
       // create plugin classpath file
-      write(testPath / "plugin.sc", libs.map(lib =>
-        "import $cp.^.lib.`" + lib._2 + "`\n"))
+      write(testPath / "plugin.sc", pluginImport)
 
       // run mill with _verify target in test path
       // -i ensures, we do not spawn a mill-worker process
-      val result = try {
-        %%(millExe, "-i", "_verify")(testPath)
-      } catch {
-        case e: ShelloutException => e.result
+      val result = proc(millExe, "-i", "verify").call(cwd = testPath, check = false)
+      if(result.exitCode == 0) {
+        T.ctx().log.info("Finished integration test: " + t.path.last)
+      } else {
+        T.ctx().log.error("Failed integration test: " + t.path.last)
       }
-
       TestCase(t.path.last, result.exitCode, result.out.lines, result.err.lines)
     }
 
@@ -195,6 +190,50 @@ object integrationTest extends Module {
 
     if (!failed.isEmpty) throw new AssertionError(s"${failed.size} integration test(s) failed")
 
+  }
+
+}
+
+object GitSupport extends Module {
+
+  /**
+   * The current git revision.
+   */
+  def gitHead = T.input {
+    sys.env.get("TRAVIS_COMMIT").getOrElse(
+      os.proc('git, "rev-parse", "HEAD").call().out.trim
+    )
+  }
+
+  /**
+   * Calc a publishable version based on git tags and dirty state.
+   *
+   * @return A tuple of (the latest tag, the calculated version string)
+   */
+  def publishVersion = T.input {
+    val tag =
+      try Option(
+        os.proc('git, 'describe, "--exact-match", "--tags", "--always", gitHead()).call().out.trim
+      )
+      catch {
+        case e => None
+      }
+
+    val dirtySuffix = os.proc('git, 'diff).call().out.string.trim() match {
+      case "" => ""
+      case s => "-DIRTY" + Integer.toHexString(s.hashCode)
+    }
+
+    tag match {
+      case Some(t) => (t, t)
+      case None =>
+        val latestTaggedVersion = os.proc('git, 'describe, "--abbrev=0", "--always", "--tags").call().out.trim
+
+        val commitsSinceLastTag =
+          os.proc('git, "rev-list", gitHead(), "--not", latestTaggedVersion, "--count").call().out.trim.toInt
+
+        (latestTaggedVersion, s"$latestTaggedVersion-$commitsSinceLastTag-${gitHead().take(6)}$dirtySuffix")
+    }
   }
 
 }

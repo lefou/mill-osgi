@@ -2,16 +2,12 @@ package de.tobiasroeser.mill.osgi
 
 import scala.collection.JavaConverters._
 
-import aQute.bnd.osgi.Builder
-import aQute.bnd.osgi.Constants
-import ammonite.ops.LsSeq
-import ammonite.ops.mkdir
-import ammonite.ops.rm
+import aQute.bnd.osgi.{Builder, Constants}
 import mill._
 import mill.define.Task
 import mill.eval.PathRef
-import mill.scalalib.JavaModule
-import mill.scalalib.PublishModule
+import mill.scalalib.{JavaModule, PublishModule}
+import os.Path
 
 trait OsgiBundleModule extends JavaModule {
 
@@ -156,11 +152,11 @@ trait OsgiBundleModule extends JavaModule {
 
     // TODO: scan classes directory and auto-add all dirs as private package
     val classesPath = compile().classes.path
-    val ps: LsSeq = ammonite.ops.ls.rec.!(classesPath)
-    val packages = ps.filter(_.isFile).flatMap { pFull =>
+    val ps: IndexedSeq[Path] = os.walk(classesPath)
+    val packages = ps.filter(_.toIO.isFile()).flatMap { pFull =>
       val p = pFull.relativeTo(classesPath)
       if (p.segments.size > 1) {
-        Seq((p / ammonite.ops.up).segments.mkString("."))
+        Seq((p / os.up).segments.mkString("."))
       } else {
         // Find way to include top-level package
         Seq(".")
@@ -227,8 +223,8 @@ trait OsgiBundleModule extends JavaModule {
     builder.getWarnings().asScala.foreach(msg => log.error("bnd warning: " + msg))
 
     val outputPath = T.ctx().dest / "out.jar"
-    mkdir(outputPath / ammonite.ops.up)
-    rm(outputPath)
+    os.makeDir.all(outputPath / os.up)
+    os.remove.all(outputPath)
 
     jar.write(outputPath.toIO)
 

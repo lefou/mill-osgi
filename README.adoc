@@ -49,6 +49,11 @@ Apache License, version 2
 
 == Changelog
 
+=== {master}
+
+* Reworked integration test setup
+* Version bump to mill-0.3.5 and use of os-lib
+
 === mill-osgi 0.0.4 - 2018-11-20
 
 * Added explicit scala-library dependency to released pom.xml

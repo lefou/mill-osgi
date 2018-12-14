@@ -2,10 +2,10 @@ import mill._
 import mill.scalalib._
 import $exec.plugin
 import de.tobiasroeser.mill.osgi._
-import de.tobiasroeser.mill.osgi.testsupport._
 
-def _verify() = T.command {
-  import TestSupport._
+def verify() = T.command {
+  import de.tobiasroeser.mill.osgi.testsupport.TestSupport._
+
   withManifest(hello.jar().path) { manifest =>
     checkExact(manifest, "Manifest-Version", "1.0")
     checkExact(manifest, "Bundle-SymbolicName", "hello")

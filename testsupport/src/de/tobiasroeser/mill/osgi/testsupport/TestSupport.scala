@@ -3,7 +3,8 @@ package de.tobiasroeser.mill.osgi.testsupport
 import java.io.IOException
 import java.util.jar.Manifest
 import java.util.zip.ZipFile
-import ammonite.ops.Path
+
+import os.Path
 
 trait TestSupport {
 
