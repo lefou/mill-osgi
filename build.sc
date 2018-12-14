@@ -20,18 +20,27 @@ def install() = T.command {
   core.publishLocal()()
 }
 
+def checkRelease: T[Boolean] = T.input {
+  if (GitSupport.publishVersion()._2.contains("DIRTY")) {
+    T.ctx().log.error("Project (git) state is dirty. Release not recommended!")
+    false
+  } else { true }
+}
+
 /** Test and release to Maven Central. */
 def release(
   sonatypeCreds: String,
   release: Boolean = true
 ) = T.command {
-  test()()
-  core.publish(sonatypeCreds = sonatypeCreds, release = release)()
+  if (checkRelease()) {
+    test()()
+    core.publish(sonatypeCreds = sonatypeCreds, release = release)()
+  }
 }
 
 trait MillOsgiModule extends ScalaModule with PublishModule {
 
-  def scalaVersion = T{ "2.12.8" }
+  def scalaVersion = T { "2.12.8" }
 
   def ivyDeps = T { Agg(ivy"org.scala-lang:scala-library:${scalaVersion()}") }
 
@@ -173,7 +182,7 @@ object integrationTest extends TaskModule {
       // run mill with _verify target in test path
       // -i ensures, we do not spawn a mill-worker process
       val result = proc(millExe, "-i", "verify").call(cwd = testPath, check = false)
-      if(result.exitCode == 0) {
+      if (result.exitCode == 0) {
         T.ctx().log.info("Finished integration test: " + t.path.last)
       } else {
         T.ctx().log.error("Failed integration test: " + t.path.last)
@@ -199,10 +208,10 @@ object GitSupport extends Module {
   /**
    * The current git revision.
    */
-  def gitHead = T.input {
+  def gitHead: T[String] = T.input {
     sys.env.get("TRAVIS_COMMIT").getOrElse(
       os.proc('git, "rev-parse", "HEAD").call().out.trim
-    )
+    ).toString()
   }
 
   /**
@@ -210,7 +219,7 @@ object GitSupport extends Module {
    *
    * @return A tuple of (the latest tag, the calculated version string)
    */
-  def publishVersion = T.input {
+  def publishVersion: T[(String, String)] = T.input {
     val tag =
       try Option(
         os.proc('git, 'describe, "--exact-match", "--tags", "--always", gitHead()).call().out.trim
