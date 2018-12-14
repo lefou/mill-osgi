@@ -1,9 +1,8 @@
 = mill-osgi - Build OSGi Bundles with mill
 :mill-min-version: 0.3.5
-:mill-osgi-version: 0.0.4
+:mill-osgi-version: 0.0.5
 :toc:
 :toc-placement: preamble
-
 
 Plug-in to build OSGi bundles with the https://github.com/lihaoyi/mill[mill build tool]
 
@@ -76,7 +75,7 @@ Apache License, version 2
 
 == Changelog
 
-=== {master}
+=== mill-osgi 0.0.5 - 2018-12-14
 
 * Reworked integration test setup
 * Version bump to mill-0.3.5 and use of os-lib
