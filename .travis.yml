@@ -18,4 +18,5 @@ script:
   # If TEST_MILL_VERSION defined, we also download that version as ~/bin/mill-test
   - if [ "x$TEST_MILL_VERSION" != "x" ] ; then curl -L -o ~/bin/mill-test https://github.com/lihaoyi/mill/releases/download/${TEST_MILL_VERSION}/${TEST_MILL_VERSION} && chmod +x ~/bin/mill-test ; else ln -s ~/bin/mill ~/bin/mill-test ; fi
   - export PATH=~/bin/mill:$PATH
+  - mill -i test
   - mill -i test $HOME/bin/mill-test
