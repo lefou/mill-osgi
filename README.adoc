@@ -73,7 +73,31 @@ If the organization or the last segment of the organization is a prefix of the a
 
 Apache License, version 2
 
+== Version Compatibility Matrix
+
+Mill is still in active development, and has no stable API yet.
+Hence, not all mill-osgi versions work with every mill version.
+
+The following table shows a matrix of compatible mill and mill-osgi versions.
+
+.Version Compatibility Matrix
+[options="header"]
+|===
+| mill-osgi | mill
+| 0.0.1 | 0.2.8
+| 0.0.2 | 0.2.8
+| 0.0.3 | 0.3.2
+| 0.0.4 | 0.3.2
+| 0.0.5 | 0.3.5
+| _0.0.6_ | _0.3.6_
+|===
+
 == Changelog
+
+=== mill-osgi {master}
+
+* Version bump to mill-0.3.6 and use of new mill-api
+* Improved integration test setup
 
 === mill-osgi 0.0.5 - 2018-12-14
 
