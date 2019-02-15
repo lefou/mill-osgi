@@ -98,6 +98,7 @@ The following table shows a matrix of compatible mill and mill-osgi versions.
 
 * Version bump to mill-0.3.6 and use of new mill-api
 * Improved integration test setup
+* Added runtime detection of possibly incompatible mill runtime version
 
 === mill-osgi 0.0.5 - 2018-12-14
 

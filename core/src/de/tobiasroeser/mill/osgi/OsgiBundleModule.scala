@@ -1,8 +1,10 @@
 package de.tobiasroeser.mill.osgi
 
 import scala.collection.JavaConverters._
+import scala.util.Try
 
 import aQute.bnd.osgi.{Builder, Constants}
+import de.tobiasroeser.mill.osgi.internal.BuildInfo
 import mill._
 import mill.define.Task
 import mill.eval.PathRef
@@ -98,7 +100,7 @@ trait OsgiBundleModule extends JavaModule {
       case _ => T {
         withDefaults(OsgiHeaders(
           `Bundle-SymbolicName` = bundleSymbolicName(),
-          `Bundle-Version` = Option(bundleVersion()),
+          `Bundle-Version` = Option(bundleVersion())
         ))
       }
     }
@@ -140,6 +142,11 @@ trait OsgiBundleModule extends JavaModule {
    */
   def osgiBundle: T[PathRef] = T {
     val log = T.ctx().log
+
+    val currentRunningMillVersion = T.ctx().env.get("MILL_VERSION")
+    if (!checkMillVersion(currentRunningMillVersion)) {
+      log.error(s"Your used mill version is most probably too old. In case of errors use (at least) mill version ${BuildInfo.millVersion}.")
+    }
 
     val builder = new Builder()
     if (reproducibleBundle()) {
@@ -256,6 +263,32 @@ object OsgiBundleModule {
       case p => Seq(p)
     }
     builder.setProperty(key, (existing ++ value).mkString(","))
+  }
+
+  protected[osgi] def checkMillVersion(millVersion: Option[String]): Boolean = checkMillVersion(BuildInfo.millVersion, millVersion)
+
+  protected[osgi] def checkMillVersion(buildVersion: String, millVersion: Option[String]): Boolean = millVersion match {
+    case Some(v) =>
+
+      /** Extract the major, minor and micro version parts of the given version string. */
+      def parseVersion(version: String): Try[Array[Int]] = Try {
+        version
+          .split("[-]", 2)(0)
+          .split("[.]", 4)
+          .map(_.toInt)
+          .take(3)
+      }
+
+      val buildMillVersion = parseVersion(buildVersion).getOrElse(Array(0, 0, 0))
+      val runMillVersion = parseVersion(v).getOrElse(Array(999, 999, 999))
+
+      (runMillVersion(0) > buildMillVersion(0)) ||
+        (runMillVersion(0) == buildMillVersion(0) && runMillVersion(1) > buildMillVersion(1)) ||
+        (runMillVersion(0) == buildMillVersion(0) && runMillVersion(1) == buildMillVersion(1) && runMillVersion(2) >= buildMillVersion(2))
+
+    case _ =>
+      // ignore
+      true
   }
 
 }
