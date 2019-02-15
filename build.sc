@@ -3,6 +3,12 @@ import mill.eval.PathRef
 import mill.scalalib._
 import mill.scalalib.publish._
 
+import $ivy.`com.lihaoyi::mill-contrib-buildinfo:0.3.6`
+// import $ivy.`com.lihaoyi::mill-contrib-buildinfo:0.3.6-25-b553df-DIRTY4ab34d98`
+import mill.contrib.BuildInfo
+
+def millVersion = "0.3.6"
+
 /** Build JARs. */
 def _build() = T.command {
   core.jar()
@@ -42,7 +48,9 @@ trait MillOsgiModule extends ScalaModule with PublishModule {
 
   def scalaVersion = T { "2.12.8" }
 
-  def ivyDeps = T { Agg(ivy"org.scala-lang:scala-library:${scalaVersion()}") }
+  def ivyDeps = T {
+    Agg(ivy"org.scala-lang:scala-library:${scalaVersion()}")
+  }
 
   def publishVersion = GitSupport.publishVersion()._2
 
@@ -50,8 +58,8 @@ trait MillOsgiModule extends ScalaModule with PublishModule {
     val ammonite = ivy"com.lihaoyi:::ammonite:1.3.2"
     val bndlib = ivy"biz.aQute.bnd:biz.aQute.bndlib:4.0.0"
     val logbackClassic = ivy"ch.qos.logback:logback-classic:1.1.3"
-    val millMain = ivy"com.lihaoyi::mill-main:0.3.5"
-    val millScalalib = ivy"com.lihaoyi::mill-scalalib:0.3.5"
+    val millMain = ivy"com.lihaoyi::mill-main:${millVersion}"
+    val millScalalib = ivy"com.lihaoyi::mill-scalalib:${millVersion}"
     val scalaTest = ivy"org.scalatest::scalatest:3.0.1"
     val slf4j = ivy"org.slf4j:slf4j-api:1.7.25"
   }
@@ -71,9 +79,9 @@ trait MillOsgiModule extends ScalaModule with PublishModule {
 
 }
 
-object core extends MillOsgiModule {
+object core extends MillOsgiModule with BuildInfo {
 
-  override def artifactName = "de.tobiasroeser.mill.osgi"
+  override def artifactName = T { "de.tobiasroeser.mill.osgi" }
 
   def ivyDeps = T {
     super.ivyDeps() ++ Agg(
@@ -87,11 +95,20 @@ object core extends MillOsgiModule {
     Deps.millScalalib
   )
 
+  def buildInfoPackageName = Some("de.tobiasroeser.mill.osgi.internal")
+  def buildInfoMembers = T {
+    Map(
+      "millOsgiVersion" -> publishVersion(),
+      "millVersion" -> millVersion
+    )
+  }
+
   object test extends Tests {
 
     override def ivyDeps = Agg(
       Deps.scalaTest
     )
+
     def testFrameworks = Seq("org.scalatest.tools.Framework")
 
   }
