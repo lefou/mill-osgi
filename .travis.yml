@@ -10,8 +10,8 @@ jdk:
 
 env:
   - MILL_VERSION=0.3.6
-    # TEST_MILL_VERSION=0.3.6
     MILL_CMD="mill -i test ~/bin/mill-test"
+#    TEST_MILL_VERSION=0.3.6
 
 script:
   - curl -L -o ~/bin/mill https://github.com/lihaoyi/mill/releases/download/${MILL_VERSION}/${MILL_VERSION} && chmod +x ~/bin/mill
