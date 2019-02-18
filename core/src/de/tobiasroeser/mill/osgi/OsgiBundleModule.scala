@@ -276,8 +276,8 @@ object OsgiBundleModule {
         version
           .split("[-]", 2)(0)
           .split("[.]", 4)
-          .map(_.toInt)
           .take(3)
+          .map(_.toInt)
       }
 
       val buildMillVersion = parseVersion(buildVersion).getOrElse(Array(0, 0, 0))
