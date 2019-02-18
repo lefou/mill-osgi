@@ -51,6 +51,50 @@ $ mill show project.jar
 "ref:14551bd1:/tmp/project/out/project/osgiBundle/dest/out.jar"
 ----
 
+== Configuration
+
+To produce OSGi bundles, your module has to implement link:core/src/de/tobiasroeser/mill/osgi/OsgiBundleModule.scala[`de.tobiasroeser.mill.osgi.OsgiBundleModule`].
+
+.Configuration options
+* `def bundleVersion: T[String]` -
+  The bundle version.
+  If the module is a `PublishModule`, it defaults to `PublishModule.publishVersion`.
+
+* `def bundleSymbolicName: T[String]` -
+  The bundle symbolic name.
+  If the module is a `PublishModule`, it derives a default from from `PublishModule.artifactMetadata`.
+
+* `def reproducibleBundle: T[Boolean]` -
+  Create a reproducible bundle file.
+  To achieve that, some properties of the resulting JAR will be adjusted, e.g. sorted manifest and JAR entries, unified file create time, etc.
+  Defaults to `true`.
+
+* `def embeddedJars: T[Seq[PathRef]]` -
+  Embed these JAR files and also add them to the bundle classpath.
+
+* `def explodedJars: T[Seq[PathRef]]` -
+  Embed the content of the given JAR files into the bundle.
+
+* `def osgiHeaders: T[OsgiHeaders]` -
+  Various OSGi headers defining the OSGi bundle.
+  You should always use `OsgiHeaders.copy` to customize some headers to not loose useful defaults.
+
+* `def includeSources: T[Boolean]` -
+  Iff `true` include sources in the final bundle under `OSGI-OPT/src`.
+  Defaults to `false`.
+
+* `def includeResource: T[Seq[String]]` -
+  Resources to include into the final bundle.
+ Defaults to include resources defined with `JavaModule.resources`.
+
+* `def additionalHeaders: T[Map[String, String]]` -
+  Additional headers to add to the bundle manifest.
+  All headers added here will be applied after `osgiHeaders` and thus override previously defined values.
+  Be careful to not add standard OSGi headers here, but via `osgiHeaders`.
+
+* `def osgiBundle: T[PathRef]` -
+  Build the OSGi Bundle.
+
 
 == Defaults
 
@@ -89,7 +133,7 @@ The following table shows a matrix of compatible mill and mill-osgi versions.
 | 0.0.3 | 0.3.2
 | 0.0.4 | 0.3.2
 | 0.0.5 | 0.3.5
-| _0.0.6_ | _0.3.6_
+| 0.0.6 | 0.3.6
 |===
 
 == Changelog

@@ -19,6 +19,7 @@ trait OsgiBundleModule extends JavaModule {
    * The transitive version of `localClasspath`.
    * This overrides [[JavaModule.transitiveLocalClasspath]], but uses the final
    * JAR files instead of just the classes directories where possible.
+   * This is needed, as only the final JARs contain proper OSGi manifest entries.
    */
   override def transitiveLocalClasspath: T[Agg[PathRef]] = T {
     Task.traverse(recursiveModuleDeps) { m =>
