@@ -12,11 +12,9 @@ jdk:
   - openjdk11
 
 env:
-  - MILL_VERSION=0.3.6
-  - MILL_VERSION=0.3.6
-    TEST_MILL_VERSION=0.3.6-25-b553df
+  - TEST_MILL_VERSION=
+  - TEST_MILL_VERSION=0.3.6-25-b553df
 
 script:
-  - curl -L -o ~/bin/mill https://github.com/lihaoyi/mill/releases/download/${MILL_VERSION}/${MILL_VERSION} && chmod +x ~/bin/mill
-  - mill -i version
-  - mill -i test
+  - ./millw -i version
+  - ./mill -i test
