@@ -17,4 +17,4 @@ env:
 
 script:
   - ./millw -i version
-  - ./mill -i test
+  - ./millw -i test
