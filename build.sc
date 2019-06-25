@@ -9,6 +9,9 @@ import $ivy.`com.lihaoyi::mill-contrib-buildinfo:0.4.1`, mill.contrib.BuildInfo
 // Run integration tests with mill 
 import $ivy.`de.tototec::de.tobiasroeser.mill.integrationtest:0.1.0`, de.tobiasroeser.mill.integrationtest._
 
+// Generate converage reports
+import $ivy.`com.lihaoyi::mill-contrib-buildinfo:0.4.1`, mill.contrib.scoverage.ScoverageModule
+
 // The mill version used in the project/sources/dependencies, also default for integration tests
 def millVersion = "0.3.6"
 
@@ -50,7 +53,7 @@ def release(
 trait MillOsgiModule extends ScalaModule with PublishModule {
 
   def scalaVersion = T { "2.12.8" }
-
+  
   def ivyDeps = T {
     Agg(ivy"org.scala-lang:scala-library:${scalaVersion()}")
   }
@@ -82,7 +85,9 @@ trait MillOsgiModule extends ScalaModule with PublishModule {
 
 }
 
-object core extends MillOsgiModule with BuildInfo {
+object core extends MillOsgiModule with BuildInfo with ScoverageModule {
+
+  def scoverageVersion = T { "1.3.1" }
 
   override def artifactName = T { "de.tobiasroeser.mill.osgi" }
 
@@ -106,7 +111,7 @@ object core extends MillOsgiModule with BuildInfo {
     )
   }
 
-  object test extends Tests {
+  object test extends ScoverageTests {
 
     override def ivyDeps = Agg(
       Deps.scalaTest
