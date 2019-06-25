@@ -3,10 +3,10 @@ import mill.eval.PathRef
 import mill.scalalib._
 import mill.scalalib.publish._
 
-import $ivy.`com.lihaoyi::mill-contrib-buildinfo:0.4.1`
-// import $ivy.`com.lihaoyi::mill-contrib-buildinfo:0.3.6-25-b553df-DIRTY4ab34d98`
-import mill.contrib.BuildInfo
+// Generate BuildInfo.scala
+import $ivy.`com.lihaoyi::mill-contrib-buildinfo:0.4.1`, mill.contrib.BuildInfo
 
+// Run integration tests with mill 
 import $ivy.`de.tototec::de.tobiasroeser.mill.integrationtest:0.1.0`, de.tobiasroeser.mill.integrationtest._
 
 // The mill version used in the project/sources/dependencies, also default for integration tests
