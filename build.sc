@@ -180,7 +180,7 @@ object integrationTest extends MillIntegrationTestModule {
 
   def millTestVersion = T {
     val ctx = T.ctx()
-    ctx.env.get("TEST_MILL_VERSION").getOrElse(millVersion)
+    ctx.env.get("TEST_MILL_VERSION").filterNot(_.isEmpty).getOrElse(millVersion)
   }
 
   def pluginsUnderTest = Seq(core,testsupport)
