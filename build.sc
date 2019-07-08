@@ -4,13 +4,13 @@ import mill.scalalib._
 import mill.scalalib.publish._
 
 // Generate BuildInfo.scala
-import $ivy.`com.lihaoyi::mill-contrib-buildinfo:0.4.1`, mill.contrib.BuildInfo
+import $ivy.`com.lihaoyi::mill-contrib-buildinfo:0.5.0`, mill.contrib.BuildInfo
 
 // Run integration tests with mill 
 import $ivy.`de.tototec::de.tobiasroeser.mill.integrationtest:0.1.0`, de.tobiasroeser.mill.integrationtest._
 
 // Generate converage reports
-import $ivy.`com.lihaoyi::mill-contrib-buildinfo:0.4.1`, mill.contrib.scoverage.ScoverageModule
+import $ivy.`com.lihaoyi::mill-contrib-scoverage:0.5.0`, mill.contrib.scoverage.ScoverageModule
 
 // The mill version used in the project/sources/dependencies, also default for integration tests
 def millVersion = "0.3.6"
