@@ -4,7 +4,6 @@ git:
   depth: false
 
 jdk:
-  - oraclejdk8
   - openjdk8
   - openjdk9
   - openjdk10
