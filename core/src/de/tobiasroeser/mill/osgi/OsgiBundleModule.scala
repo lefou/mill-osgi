@@ -230,7 +230,7 @@ trait OsgiBundleModule extends JavaModule {
     builder.getErrors().asScala.foreach(msg => log.error("bnd error: " + msg))
     builder.getWarnings().asScala.foreach(msg => log.error("bnd warning: " + msg))
 
-    val outputPath = T.ctx().dest / "out.jar"
+    val outputPath = T.ctx().dest / s"${bundleSymbolicName()}-${bundleVersion()}.jar"
     os.makeDir.all(outputPath / os.up)
     os.remove.all(outputPath)
 
