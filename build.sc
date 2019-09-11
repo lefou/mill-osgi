@@ -62,7 +62,7 @@ trait MillOsgiModule extends ScalaModule with PublishModule {
 
   object Deps {
     val ammonite = ivy"com.lihaoyi:::ammonite:1.3.2"
-    val bndlib = ivy"biz.aQute.bnd:biz.aQute.bndlib:4.0.0"
+    val bndlib = ivy"biz.aQute.bnd:biz.aQute.bndlib:4.2.0"
     val logbackClassic = ivy"ch.qos.logback:logback-classic:1.1.3"
     val millMain = ivy"com.lihaoyi::mill-main:${millVersion}"
     val millScalalib = ivy"com.lihaoyi::mill-scalalib:${millVersion}"
