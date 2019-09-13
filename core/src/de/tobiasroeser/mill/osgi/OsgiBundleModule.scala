@@ -160,7 +160,7 @@ trait OsgiBundleModule extends JavaModule {
 
     // TODO: scan classes directory and auto-add all dirs as private package
     val classesPath = compile().classes.path
-    val ps: IndexedSeq[Path] = os.walk(classesPath)
+    val ps: Seq[Path] = if(!os.exists(classesPath)) Seq() else os.walk(classesPath)
     val packages = ps.filter(_.toIO.isFile()).flatMap { pFull =>
       val p = pFull.relativeTo(classesPath)
       if (p.segments.size > 1) {
