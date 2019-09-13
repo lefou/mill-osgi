@@ -1,6 +1,6 @@
 = mill-osgi - Build OSGi Bundles with mill
 :mill-min-version: 0.3.6
-:mill-osgi-version: 0.0.6
+:mill-osgi-version: 0.1.0
 :toc:
 :toc-placement: preamble
 
@@ -137,6 +137,14 @@ The following table shows a matrix of compatible mill and mill-osgi versions.
 |===
 
 == Changelog
+
+=== mill-osgi 0.1.0 - 2019-09-13
+
+* Version bump to bndlib-4.2.0
+* Fixed handling of empty compile result
+* osgiBundle now produces a proper named jar (symbolic name and version)
+* Some internal improvements
+* Improved documentation
 
 === mill-osgi 0.0.6 - 2019-02-15
 
