@@ -148,7 +148,7 @@ The following table shows a matrix of compatible mill and mill-osgi versions.
 * Version bump to bndlib-4.3.1
 * Version bump to scala 2.12.10
 
-_See list of https://github.com/lefou/mill-osgi/compare/{prev-version}...{version}[commits since {0.1.0}]
+_See list of https://github.com/lefou/mill-osgi/compare/{prev-version}...{version}[commits since {prev-version}]._
 
 === mill-osgi 0.1.0 - 2019-09-13
 
