@@ -1,12 +1,9 @@
-import mill.define.{Module, TaskModule}
+import mill.define.{Module, Target}
 import mill.eval.PathRef
 import mill.scalalib._
 import mill.scalalib.publish._
 
-// Generate BuildInfo.scala
-import $ivy.`com.lihaoyi::mill-contrib-buildinfo:$MILL_VERSION`, mill.contrib.BuildInfo
-
-// Run integration tests with mill 
+// Run integration tests with mill
 import $ivy.`de.tototec::de.tobiasroeser.mill.integrationtest:0.1.0`, de.tobiasroeser.mill.integrationtest._
 
 // Generate converage reports
@@ -85,7 +82,7 @@ trait MillOsgiModule extends ScalaModule with PublishModule {
 
 }
 
-object core extends MillOsgiModule with BuildInfo with ScoverageModule {
+object core extends MillOsgiModule with ScoverageModule {
 
   def scoverageVersion = T { "1.3.1" }
 
@@ -103,22 +100,26 @@ object core extends MillOsgiModule with BuildInfo with ScoverageModule {
     Deps.millScalalib
   )
 
-  def buildInfoPackageName = Some("de.tobiasroeser.mill.osgi.internal")
-  def buildInfoMembers = T {
-    Map(
-      "millOsgiVersion" -> publishVersion(),
-      "millVersion" -> millVersion
-    )
+  override def generatedSources: Target[Seq[PathRef]] = T{
+    val dest = T.ctx().dest
+    val infoClass =
+      s"""// Generated with mill from build.sc
+         |package de.tobiasroeser.mill.osgi.internal
+         |
+         |object BuildInfo {
+         |  def millOsgiVerison = "${publishVersion()}"
+         |  def millVersion = "${millVersion}"
+         |}
+         |""".stripMargin
+    os.write(dest / "BuildInfo.scala", infoClass)
+      super.generatedSources() ++ Seq(PathRef(dest))
   }
 
   object test extends ScoverageTests {
-
     override def ivyDeps = Agg(
       Deps.scalaTest
     )
-
     def testFrameworks = Seq("org.scalatest.tools.Framework")
-
   }
 
 }
