@@ -13,7 +13,7 @@ import $ivy.`de.tototec::de.tobiasroeser.mill.integrationtest:0.1.0`, de.tobiasr
 import $ivy.`com.lihaoyi::mill-contrib-scoverage:$MILL_VERSION`, mill.contrib.scoverage.ScoverageModule
 
 // The mill version used in the project/sources/dependencies, also default for integration tests
-def millVersion = "0.3.6"
+def millVersion = "0.5.7"
 
 /** Build JARs. */
 def _build() = T.command {
@@ -52,7 +52,7 @@ def release(
 
 trait MillOsgiModule extends ScalaModule with PublishModule {
 
-  def scalaVersion = T { "2.12.8" }
+  def scalaVersion = T { "2.12.10" }
   
   def ivyDeps = T {
     Agg(ivy"org.scala-lang:scala-library:${scalaVersion()}")
@@ -62,12 +62,12 @@ trait MillOsgiModule extends ScalaModule with PublishModule {
 
   object Deps {
     val ammonite = ivy"com.lihaoyi:::ammonite:1.3.2"
-    val bndlib = ivy"biz.aQute.bnd:biz.aQute.bndlib:4.2.0"
+    val bndlib = ivy"biz.aQute.bnd:biz.aQute.bndlib:4.3.1"
     val logbackClassic = ivy"ch.qos.logback:logback-classic:1.1.3"
     val millMain = ivy"com.lihaoyi::mill-main:${millVersion}"
     val millScalalib = ivy"com.lihaoyi::mill-scalalib:${millVersion}"
-    val scalaTest = ivy"org.scalatest::scalatest:3.0.1"
-    val slf4j = ivy"org.slf4j:slf4j-api:1.7.25"
+    val scalaTest = ivy"org.scalatest::scalatest:3.0.8"
+    val slf4j = ivy"org.slf4j:slf4j-api:1.7.30"
   }
 
   def javacOptions = Seq("-source", "1.8", "-target", "1.8")

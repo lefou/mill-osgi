@@ -1,6 +1,6 @@
 = mill-osgi - Build OSGi Bundles with mill
-:mill-min-version: 0.3.6
-:mill-osgi-version: 0.1.0
+:mill-min-version: 0.5.7
+:mill-osgi-version: 0.1.1
 :toc:
 :toc-placement: preamble
 
@@ -128,16 +128,27 @@ The following table shows a matrix of compatible mill and mill-osgi versions.
 [options="header"]
 |===
 | mill-osgi | mill
-| 0.0.1 | 0.2.8
-| 0.0.2 | 0.2.8
-| 0.0.3 | 0.3.2
-| 0.0.4 | 0.3.2
-| 0.0.5 | 0.3.5
-| 0.0.6 | 0.3.6 - 0.5.3
+| 0.1.1 | 0.5.7
 | 0.1.0 | 0.3.6 - 0.5.3
+| 0.0.6 | 0.3.6 - 0.5.3
+| 0.0.5 | 0.3.5
+| 0.0.4 | 0.3.2
+| 0.0.3 | 0.3.2
+| 0.0.2 | 0.2.8
+| 0.0.1 | 0.2.8
 |===
 
 == Changelog
+
+=== mill-osgi {master}
+:prev-version: 0.1.0
+:version: 0.1.1
+
+* Version bump mill API to 0.5.7
+* Version bump to bndlib-4.3.1
+* Version bump to scala 2.12.10
+
+_See list of https://github.com/lefou/mill-osgi/compare/{prev-version}...{version}[commits since {0.1.0}]
 
 === mill-osgi 0.1.0 - 2019-09-13
 
