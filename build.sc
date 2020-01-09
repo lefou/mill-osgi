@@ -1,5 +1,6 @@
 import mill.define.{Module, Target}
 import mill.eval.PathRef
+import mill.modules.Util
 import mill.scalalib._
 import mill.scalalib.publish._
 
@@ -192,4 +193,14 @@ object itest extends MillIntegrationTestModule {
 
   def pluginsUnderTest = Seq(core, testsupport)
 
+}
+
+/**
+ * Update the millw script.
+ */
+def millw() = T.command {
+  // https://raw.githubusercontent.com/lefou/millw/master/millw
+  val target = Util.download("https://raw.githubusercontent.com/lefou/millw/master/millw")
+  os.copy.over(target.path, build.millSourcePath / "millw")
+  target
 }
