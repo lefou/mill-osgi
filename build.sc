@@ -1,3 +1,5 @@
+import java.nio.file.attribute.PosixFilePermission
+
 import mill.define.{Module, Target}
 import mill.eval.PathRef
 import mill.modules.Util
@@ -201,6 +203,8 @@ object itest extends MillIntegrationTestModule {
 def millw() = T.command {
   // https://raw.githubusercontent.com/lefou/millw/master/millw
   val target = Util.download("https://raw.githubusercontent.com/lefou/millw/master/millw")
-  os.copy.over(target.path, build.millSourcePath / "millw")
+  val millw = build.millSourcePath / "millw"
+  os.copy.over(target.path, millw)
+  os.perms.set(millw, os.perms(millw) + PosixFilePermission.OWNER_EXECUTE)
   target
 }
