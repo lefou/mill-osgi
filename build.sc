@@ -4,7 +4,7 @@ import mill.scalalib._
 import mill.scalalib.publish._
 
 // Run integration tests with mill
-import $ivy.`de.tototec::de.tobiasroeser.mill.integrationtest:0.1.0`, de.tobiasroeser.mill.integrationtest._
+import $ivy.`de.tototec::de.tobiasroeser.mill.integrationtest:0.1.1`, de.tobiasroeser.mill.integrationtest._
 
 // Generate converage reports
 import $ivy.`com.lihaoyi::mill-contrib-scoverage:$MILL_VERSION`, mill.contrib.scoverage.ScoverageModule
