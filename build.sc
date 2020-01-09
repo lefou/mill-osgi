@@ -20,7 +20,7 @@ def _build() = T.command {
 /** Run tests. */
 def test() = T.command {
   core.test.test()()
-  integrationTest.test()()
+  itest.test()()
 }
 
 def install() = T.command {
@@ -183,13 +183,13 @@ object GitSupport extends Module {
 
 }
 
-object integrationTest extends MillIntegrationTestModule {
+object itest extends MillIntegrationTestModule {
 
   def millTestVersion = T {
     val ctx = T.ctx()
     ctx.env.get("TEST_MILL_VERSION").filterNot(_.isEmpty).getOrElse(millVersion)
   }
 
-  def pluginsUnderTest = Seq(core,testsupport)
+  def pluginsUnderTest = Seq(core, testsupport)
 
 }
