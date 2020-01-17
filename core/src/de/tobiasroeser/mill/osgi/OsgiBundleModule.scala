@@ -127,6 +127,10 @@ trait OsgiBundleModule extends JavaModule {
       .map(dir => dir.path.toIO.getAbsolutePath())
   }
 
+  def exportContents: T[Seq[String]] = T {
+    Seq[String]()
+  }
+
   // TODO: do we want support default Mill Jar headers?
 
   /**
@@ -211,6 +215,10 @@ trait OsgiBundleModule extends JavaModule {
     explodedJars().foreach { jar =>
       mergeSeqProps(builder, Constants.INCLUDERESOURCE, Seq("@" + jar.path.toIO.getAbsolutePath()))
     }
+
+    exportContents().foreach(c =>
+      mergeSeqProps(builder, Constants.EXPORT_CONTENTS, Seq("@" + c))
+    )
 
     builder.addProperties(osgiHeaders().toProperties)
 
