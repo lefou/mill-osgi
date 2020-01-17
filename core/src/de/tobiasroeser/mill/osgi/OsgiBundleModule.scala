@@ -44,10 +44,10 @@ trait OsgiBundleModule extends JavaModule {
    */
   def bundleSymbolicName: T[String] = this match {
     case pm: PublishModule => T {
-      calcBundleSymbolicName(pm.pomSettings().organization, artifactName())
+      calcBundleSymbolicName(pm.pomSettings().organization, artifactId())
     }
     case _ =>
-      artifactName()
+      artifactId()
   }
 
   /**
