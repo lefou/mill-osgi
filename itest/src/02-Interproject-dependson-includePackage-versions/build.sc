@@ -16,13 +16,13 @@ def verify() = T.command {
   import de.tobiasroeser.mill.osgi.testsupport.TestSupport._
 
   withManifest(proj1.jar().path) { manifest =>
-    checkExact(manifest, "Bundle-SymbolicName", "proj1")
+    checkExact(manifest, "Bundle-SymbolicName", "proj1_2.12")
     checkExact(manifest, "Bundle-Version", projVersion)
     checkSlices(manifest, "Export-Package", Seq("proj1;", s"""version="${projVersion}""""))
   }
 
   withManifest(proj2.jar().path) { manifest =>
-    checkExact(manifest, "Bundle-SymbolicName", "proj2")
+    checkExact(manifest, "Bundle-SymbolicName", "proj2_2.12")
     checkExact(manifest, "Bundle-Version", projVersion)
     checkSlices(manifest, "Export-Package", Seq("proj2;", s"""version="${projVersion}""""))
 
