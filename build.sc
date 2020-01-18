@@ -50,28 +50,25 @@ def release(
   }
 }
 
+object Deps {
+  val scalaVersion = "2.12.10"
+  val scoverageVersion = "1.3.1"
+
+  val ammonite = ivy"com.lihaoyi:::ammonite:1.3.2"
+  val bndlib = ivy"biz.aQute.bnd:biz.aQute.bndlib:4.3.1"
+  val logbackClassic = ivy"ch.qos.logback:logback-classic:1.1.3"
+  val millMain = ivy"com.lihaoyi::mill-main:${millVersion}"
+  val millScalalib = ivy"com.lihaoyi::mill-scalalib:${millVersion}"
+  val scalaTest = ivy"org.scalatest::scalatest:3.0.8"
+  val scalaLibrary = ivy"org.scala-lang:scala-library:${scalaVersion}"
+  val slf4j = ivy"org.slf4j:slf4j-api:1.7.30"
+}
+
 trait MillOsgiModule extends ScalaModule with PublishModule {
-
-  def scalaVersion = T { "2.12.10" }
-  
-  def ivyDeps = T {
-    Agg(ivy"org.scala-lang:scala-library:${scalaVersion()}")
-  }
-
+  def scalaVersion = T { Deps.scalaVersion }
+  def ivyDeps = T { Agg(Deps.scalaLibrary) }
   def publishVersion = GitSupport.publishVersion()._2
-
-  object Deps {
-    val ammonite = ivy"com.lihaoyi:::ammonite:1.3.2"
-    val bndlib = ivy"biz.aQute.bnd:biz.aQute.bndlib:4.3.1"
-    val logbackClassic = ivy"ch.qos.logback:logback-classic:1.1.3"
-    val millMain = ivy"com.lihaoyi::mill-main:${millVersion}"
-    val millScalalib = ivy"com.lihaoyi::mill-scalalib:${millVersion}"
-    val scalaTest = ivy"org.scalatest::scalatest:3.0.8"
-    val slf4j = ivy"org.slf4j:slf4j-api:1.7.30"
-  }
-
   def javacOptions = Seq("-source", "1.8", "-target", "1.8")
-
   def pomSettings = T {
     PomSettings(
       description = "Mill module adding OSGi bundle support",
@@ -82,12 +79,11 @@ trait MillOsgiModule extends ScalaModule with PublishModule {
       developers = Seq(Developer("lefou", "Tobias Roeser", "https.//github.com/lefou"))
     )
   }
-
 }
 
 object core extends MillOsgiModule with ScoverageModule {
 
-  def scoverageVersion = T { "1.3.1" }
+  def scoverageVersion = T { Deps.scoverageVersion }
 
   override def artifactName = T { "de.tobiasroeser.mill.osgi" }
 
@@ -119,28 +115,24 @@ object core extends MillOsgiModule with ScoverageModule {
   }
 
   object test extends ScoverageTests {
-    override def ivyDeps = Agg(
+    override def ivyDeps = T { Agg(
       Deps.scalaTest
-    )
+    ) }
     def testFrameworks = Seq("org.scalatest.tools.Framework")
   }
 
 }
 
 object testsupport extends MillOsgiModule {
-
   def compileIvyDeps = Agg(
     Deps.millMain,
     Deps.millScalalib
   )
-
   override def artifactName = "mill-osgi-testsupport"
-
   override def moduleDeps = Seq(core)
 }
 
 import mill.define.Sources
-
 
 object GitSupport extends Module {
 
@@ -187,14 +179,11 @@ object GitSupport extends Module {
 }
 
 object itest extends MillIntegrationTestModule {
-
   def millTestVersion = T {
     val ctx = T.ctx()
     ctx.env.get("TEST_MILL_VERSION").filterNot(_.isEmpty).getOrElse(millVersion)
   }
-
   def pluginsUnderTest = Seq(core, testsupport)
-
 }
 
 /**
