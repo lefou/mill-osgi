@@ -127,6 +127,10 @@ trait OsgiBundleModule extends JavaModule {
       .map(dir => dir.path.toIO.getAbsolutePath())
   }
 
+  /**
+   * Exports the given packages but does not try to include them from the class path.
+   * The packages should be loaded with alternative means.
+   */
   def exportContents: T[Seq[String]] = T {
     Seq[String]()
   }
@@ -164,7 +168,7 @@ trait OsgiBundleModule extends JavaModule {
 
     // TODO: scan classes directory and auto-add all dirs as private package
     val classesPath = compile().classes.path
-    val ps: Seq[Path] = if(!os.exists(classesPath)) Seq() else os.walk(classesPath)
+    val ps: Seq[Path] = if (!os.exists(classesPath)) Seq() else os.walk(classesPath)
     val packages = ps.filter(_.toIO.isFile()).flatMap { pFull =>
       val p = pFull.relativeTo(classesPath)
       if (p.segments.size > 1) {

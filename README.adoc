@@ -75,6 +75,10 @@ To produce OSGi bundles, your module has to implement link:core/src/de/tobiasroe
 * `def explodedJars: T[Seq[PathRef]]` -
   Embed the content of the given JAR files into the bundle.
 
+*  `def exportContents: T[Seq[String]]` -
+  Exports the given packages but does not try to include them from the class path.
+  The packages should be loaded with alternative means.
+
 * `def osgiHeaders: T[OsgiHeaders]` -
   Various OSGi headers defining the OSGi bundle.
   You should always use `OsgiHeaders.copy` to customize some headers to not loose useful defaults.
