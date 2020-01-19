@@ -8,12 +8,11 @@ import mill.define.Target
 def verify() = T.command {
   import de.tobiasroeser.mill.osgi.testsupport.TestSupport._
 
-  //  withManifest(hello.jar().path) { manifest =>
-  //    checkExact(manifest, "Manifest-Version", "1.0")
-  //    checkExact(manifest, "Bundle-SymbolicName", "hello_2.12")
-  //    checkExact(manifest, "Bundle-Version", "0.0.0")
-  //    checkSlices(manifest, "Private-Package", Seq("example"))
-  //  }
+    withManifest(akkaHttpCore.osgiBundle().path) { manifest =>
+      checkExact(manifest, "Manifest-Version", "1.0")
+      checkExact(manifest, "Bundle-SymbolicName", "akkaHttpCore_2.12")
+      checkExact(manifest, "Bundle-Version", "0.0.0")
+    }
 
   val origEntries = jarFileEntries(akkaHttpCore.originalJar().path)
   val osgiEntries = jarFileEntries(akkaHttpCore.osgiBundle().path)
