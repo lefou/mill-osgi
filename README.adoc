@@ -149,6 +149,7 @@ The following table shows a matrix of compatible mill and mill-osgi versions.
 :prev-version: 0.1.1
 :version: 0.1.2
 
+* Use the `artifactId` as base for the default `Bundle-SymbolicName`
 * Added `exportContents` target
 
 _See list of https://github.com/lefou/mill-osgi/compare/{prev-version}...{version}[commits since {prev-version}]._
