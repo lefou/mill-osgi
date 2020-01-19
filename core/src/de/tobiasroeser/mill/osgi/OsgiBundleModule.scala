@@ -216,9 +216,7 @@ trait OsgiBundleModule extends JavaModule {
       mergeSeqProps(builder, Constants.INCLUDERESOURCE, Seq("@" + jar.path.toIO.getAbsolutePath()))
     }
 
-    exportContents().foreach(c =>
-      mergeSeqProps(builder, Constants.EXPORT_CONTENTS, Seq("@" + c))
-    )
+    mergeSeqProps(builder, Constants.EXPORT_CONTENTS, exportContents())
 
     builder.addProperties(osgiHeaders().toProperties)
 
