@@ -111,10 +111,10 @@ No packages will be exported via `Export-Package`.
 
 === `Bundle-SymbolicName`
 
-If the module does not extends `PublishModule`, the bundle symbolic name will be initializes with `JavaModule.artifactName`.
+If the module does not extends `PublishModule`, the bundle symbolic name will be initializes with `JavaModule.artifactId`.
 
-If the module extends `PublishModule`, the `Bundle-SymbolicName` is computed using from `PublishModule.pomSettings.organization` and `JavaModule.artifactName`.
-If the organization or the last segment of the organization is a prefix of the artifactName, than that redundant part is omited.
+If the module extends `PublishModule`, the `Bundle-SymbolicName` is computed using from `PublishModule.pomSettings.organization` and `JavaModule.artifactId`.
+If the organization or the last segment of the organization is a prefix of the artifactName, than that redundant part is omitted.
 
 
 == License
