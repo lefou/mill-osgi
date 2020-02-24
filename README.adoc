@@ -61,6 +61,12 @@ $ mill show project.jar
 To produce OSGi bundles, your module has to implement link:core/src/de/tobiasroeser/mill/osgi/OsgiBundleModule.scala[`de.tobiasroeser.mill.osgi.OsgiBundleModule`].
 
 .Configuration options
+* `def osgiBuildMode: BuildMode` -
+  The build mode.
+  Defaults to `BuildMode.ReplaceJarTarget`, in which the `jar` target delegates to `osgiBundle`.
+  You can also select `BuildMode.CalculateManifest`, in which only the manifest entries will be generated with
+  bnd tool, but the JAR is creates by the regular (derived) `jar` target.
+
 * `def bundleVersion: T[String]` -
   The bundle version.
   If the module is a `PublishModule`, it defaults to `PublishModule.publishVersion`.
@@ -104,10 +110,32 @@ To produce OSGi bundles, your module has to implement link:core/src/de/tobiasroe
 * `def osgiBundle: T[PathRef]` -
   Build the OSGi Bundle.
 
+* `def manifest: T[Jvm.JarManifest]` -
+  Creates a manifest representation which can be modified or replaced.
+  The default implementation generates OSGi manifest entries from compiled classes with bnd tool and additionally adds a `Main-Class`, if defined in [[mainClass]].
 
 == Defaults
 
 By default mill-osgi tries to provide some sensible default values based on the current build setup.
+
+=== Build Mode
+
+You can choose between two build modes:
+
+`BuildMode.ReplaceJarTarget`::
+  This is the default build mode.
+  This was the first implemented build mode and was also the way some OSGi plugins in other build tools worked
+  (e.g. `bundle-maven-plugin`, `sbt-osgi`).
+  In this mode, the JAR file and it's manifest is produced by the bnd tool based on the compiled classfiles,
+  the dependencies and the plugin instructions.
+  This happens in the build target `osgiBundle` which is linked from the override `jar` target.
+
+`BuildMode.CalculateManifest`::
+  This is a new mode and somewhat experimental.
+  In this mode, only the manifest entries are calculated with the bnd tool (by processing the plugin instructions,
+  compiled classfiles and the classpath) in the `manifest` target.
+  The actual jar file creation is derived from `super.jar` target, which comes from `JavaModule`.
+  This mode might become the default eventually, as the process is better suited to the way how mill works.
 
 === `Export-Package` and `Private-Package`
 
@@ -174,6 +202,10 @@ I also accept {projectHome}/pulls[pull requests].
 
 
 == Changelog
+
+=== {master}
+
+* Added new build mode `CalculateManifest`, which only generates the manifest properties but leaves the jar creation to `JavaModule`.
 
 === mill-osgi 0.2.0 - 2020-02-24
 :prev-version: 0.1.2

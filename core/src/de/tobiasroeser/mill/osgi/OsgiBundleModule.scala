@@ -18,6 +18,14 @@ trait OsgiBundleModule extends JavaModule {
 
   import OsgiBundleModule._
 
+  /**
+   * The build mode.
+   * Defaults to [[BuildMode.ReplaceJarTarget]], in which the [[jar]] target delegates to [[osgiBundle]].
+   * You can also select [[BuildMode.CalculateManifest]], in which only the manifest entries will be generated with
+   * bnd tool, but the JAR is creates by the regular (derived) [[jar]] target.
+   *
+   * @return
+   */
   def osgiBuildMode: BuildMode = BuildMode.ReplaceJarTarget
 
   /**
@@ -181,9 +189,9 @@ trait OsgiBundleModule extends JavaModule {
   }
 
   /**
-   * Creates a manifest representation which can be modifed or replaced
-   * The default implementation generated the manifest with bnd tool and additionally adds a `Main-Class`, if defined in [[mainClass]].
-   */
+   * Creates a manifest representation which can be modified or replaced.
+   * The default implementation generates OSGi manifest entries from compiled classes with bnd tool and additionally adds a `Main-Class`, if defined in [[mainClass]].
+   **/
   override def manifest: T[Jvm.JarManifest] = T {
     // Mill defined
     val pre = super.manifest()
