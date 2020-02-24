@@ -9,9 +9,8 @@ jdk:
 
 env:
   - TEST_MILL_VERSION=
-  - TEST_MILL_VERSION=0.5.7
-  - TEST_MILL_VERSION=0.5.8
-  - TEST_MILL_VERSION=0.5.9
+  - TEST_MILL_VERSION=0.6.0
+  - TEST_MILL_VERSION=0.6.1
 
 script:
   - ./millw -i version

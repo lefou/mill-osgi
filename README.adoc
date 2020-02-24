@@ -1,6 +1,7 @@
 = mill-osgi - Build OSGi Bundles with mill
-:mill-min-version: 0.5.7
-:mill-osgi-version: 0.1.2
+:mill-min-version: 0.6.0
+:mill-osgi-version: 0.2.0
+:projectHome: https://github.com/lefou/mill-osgi
 :toc:
 :toc-placement: preamble
 
@@ -116,11 +117,6 @@ If the module does not extends `PublishModule`, the bundle symbolic name will be
 If the module extends `PublishModule`, the `Bundle-SymbolicName` is computed using from `PublishModule.pomSettings.organization` and `JavaModule.artifactId`.
 If the organization or the last segment of the organization is a prefix of the artifactName, than that redundant part is omitted.
 
-
-== License
-
-Apache License, version 2
-
 == Version Compatibility Matrix
 
 Mill is still in active development, and has no stable API yet.
@@ -132,6 +128,7 @@ The following table shows a matrix of compatible mill and mill-osgi versions.
 [options="header"]
 |===
 | mill-osgi | mill
+| 0.2.0 | 0.6.0 - 0.6.1
 | 0.1.2 | 0.5.7 - 0.5.9
 | 0.1.1 | 0.5.7 - 0.5.9
 | 0.1.0 | 0.3.6 - 0.5.3
@@ -143,7 +140,44 @@ The following table shows a matrix of compatible mill and mill-osgi versions.
 | 0.0.1 | 0.2.8
 |===
 
+== Download
+
+You can download binary releases from https://search.maven.org/search?q=a:de.tobiasroeser.mill.osgi_2.12%20g:de.tototec[Maven Central].
+
+== License
+
+Apache License, version 2
+
+== About
+
+mill::
+  https://github.com/lihaoyi/mill[Mill] is a Scala-based open source build tool.
+In my opinion the best build tool for the JVM.
+It is fast, reliable and easy to understand.
+
+me::
++
+--
+https://github.com/lefou/[I'm] a professional software developer and love to do open source.
+I'm actively developing and maintaining mill as well as https://github.com/lefou?utf8=%E2%9C%93&tab=repositories&q=topic%3Amill&type=&language=[several mill plugins].
+
+If you like my work, please star it on GitHub. You can also support me via https://github.com/sponsors/lefou[GitHub Sponsors].
+--
+
+Contributing::
+If you found a bug or have a feature request, please open a {projectHome}/issues[new issue].
+I also accept {projectHome}/pulls[pull requests].
+
+
 == Changelog
+
+=== mill-osgi 0.2.0 - 2020-02-24
+:prev-version: 0.1.2
+:version: 0.2.0
+
+* Update mill API to 0.6.0
+
+_See list of https://github.com/lefou/mill-osgi/compare/{prev-version}...{version}[commits since {prev-version}]._
 
 === mill-osgi 0.1.2 - 2020-01-19
 :prev-version: 0.1.1
@@ -152,7 +186,7 @@ The following table shows a matrix of compatible mill and mill-osgi versions.
 * Use the `artifactId` as base for the default `Bundle-SymbolicName`
 * Added `exportContents` target
 
-_See list of https://github.com/lefou/mill-osgi/compare/{prev-version}...{version}[commits since {prev-version}]._
+_See list of {projectHome}/compare/{prev-version}...{version}[commits since {prev-version}]._
 
 === mill-osgi 0.1.1 - 2020-01-08
 :prev-version: 0.1.0
@@ -162,7 +196,7 @@ _See list of https://github.com/lefou/mill-osgi/compare/{prev-version}...{versio
 * Version bump to bndlib-4.3.1
 * Version bump to scala 2.12.10
 
-_See list of https://github.com/lefou/mill-osgi/compare/{prev-version}...{version}[commits since {prev-version}]._
+_See list of {projectHome}/compare/{prev-version}...{version}[commits since {prev-version}]._
 
 === mill-osgi 0.1.0 - 2019-09-13
 

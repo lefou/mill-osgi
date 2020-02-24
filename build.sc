@@ -13,7 +13,7 @@ import $ivy.`de.tototec::de.tobiasroeser.mill.integrationtest:0.1.1`, de.tobiasr
 import $ivy.`com.lihaoyi::mill-contrib-scoverage:$MILL_VERSION`, mill.contrib.scoverage.ScoverageModule
 
 // The mill version used in the project/sources/dependencies, also default for integration tests
-def millVersion = "0.5.7"
+def millVersion = "0.6.0"
 
 /** Build JARs. */
 def _build() = T.command {
