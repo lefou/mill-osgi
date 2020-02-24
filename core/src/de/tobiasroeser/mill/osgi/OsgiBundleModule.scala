@@ -1,19 +1,24 @@
 package de.tobiasroeser.mill.osgi
 
+import java.io.FileOutputStream
+
 import scala.collection.JavaConverters._
 import scala.util.Try
 
-import aQute.bnd.osgi.{Builder, Constants}
+import aQute.bnd.osgi.{Builder, Constants, Jar}
 import de.tobiasroeser.mill.osgi.internal.BuildInfo
 import mill._
 import mill.define.Task
 import mill.eval.PathRef
+import mill.modules.Jvm
 import mill.scalalib.{JavaModule, PublishModule}
 import os.Path
 
 trait OsgiBundleModule extends JavaModule {
 
   import OsgiBundleModule._
+
+  def osgiBuildMode: BuildMode = BuildMode.ReplaceJarTarget
 
   /**
    * The transitive version of `localClasspath`.
@@ -31,10 +36,12 @@ trait OsgiBundleModule extends JavaModule {
 
   /**
    * Build the final bundle.
-   * Overrides [[JavaModule.jar]] and links to [[osgiBundle]] instead.
+   * Overrides the [[JavaModule#jar]].
+   * If [[osgiBuildMode]] is [[BuildMode.ReplaceJarTarget]] then this links to [[osgiBundle]] instead.
    */
-  override def jar: T[PathRef] = T {
-    osgiBundle()
+  override def jar: T[PathRef] = osgiBuildMode match {
+    case BuildMode.ReplaceJarTarget => T{ osgiBundle() }
+    case BuildMode.CalculateManifest => super.jar
   }
 
   /**
@@ -147,9 +154,54 @@ trait OsgiBundleModule extends JavaModule {
   }
 
   /**
-   * Build the OSGi Bundle.
+   * Build the OSGi Bundle by using the bnd tool.
    */
   def osgiBundle: T[PathRef] = T {
+    val jar = osgiBundleTask()
+    val outputPath = T.ctx().dest / s"${bundleSymbolicName()}-${bundleVersion()}.jar"
+    jar.write(outputPath.toIO)
+    PathRef(outputPath)
+  }
+
+  /**
+   * Generated the OSGi Bundle manifest by using the bnd tool.
+   */
+  def osgiManifest: T[PathRef] = T {
+    val jar = osgiBundleTask()
+    val manifest = jar.getManifest()
+
+    val outputPath = T.ctx().dest / s"${bundleSymbolicName()}-${bundleVersion()}.jar"
+    val stream = new FileOutputStream(outputPath.toIO)
+    try {
+      manifest.write(stream)
+    } finally {
+      stream.close()
+    }
+    PathRef(outputPath)
+  }
+
+  /**
+   * Creates a manifest representation which can be modifed or replaced
+   * The default implementation generated the manifest with bnd tool and additionally adds a `Main-Class`, if defined in [[mainClass]].
+   */
+  override def manifest: T[Jvm.JarManifest] = T {
+    // Mill defined
+    val pre = super.manifest()
+    // bnd calculated
+    val manifest = osgiBundleTask().getManifest()
+    def entryAsStringPair(entry: java.util.Map.Entry[Object, Object]): (String, String) = {
+      entry.getKey().toString() -> Option(entry.getValue()).map(_.toString()).getOrElse("")
+    }
+    Jvm.JarManifest(
+      main = pre.main ++ manifest.getMainAttributes.entrySet().asScala.map(entryAsStringPair).toMap,
+      groups = pre.groups ++ manifest.getEntries().asScala.map(e => e._1 -> e._2.entrySet().asScala.map(entryAsStringPair).toMap)
+    )
+  }
+
+  /**
+   * Build the OSGi Bundle.
+   */
+  def osgiBundleTask: Task[Jar] = T.task {
     val log = T.ctx().log
 
     val currentRunningMillVersion = T.ctx().env.get("MILL_VERSION")
@@ -240,13 +292,7 @@ trait OsgiBundleModule extends JavaModule {
     builder.getErrors().asScala.foreach(msg => log.error("bnd error: " + msg))
     builder.getWarnings().asScala.foreach(msg => log.error("bnd warning: " + msg))
 
-    val outputPath = T.ctx().dest / s"${bundleSymbolicName()}-${bundleVersion()}.jar"
-    os.makeDir.all(outputPath / os.up)
-    os.remove.all(outputPath)
-
-    jar.write(outputPath.toIO)
-
-    PathRef(outputPath)
+    jar
   }
 
 }
@@ -300,6 +346,12 @@ object OsgiBundleModule {
     case _ =>
       // ignore
       true
+  }
+
+  sealed trait BuildMode
+  object BuildMode {
+    object ReplaceJarTarget extends BuildMode
+    object CalculateManifest extends BuildMode
   }
 
 }
