@@ -5,6 +5,10 @@
 :toc:
 :toc-placement: preamble
 
+ifdef::env-github[]
+image:https://travis-ci.org/lefou/mill-osgi.svg?branch=master["Build Status", link="https://travis-ci.org/lefou/mill-osgi"]
+endif::[]
+
 Plug-in to build OSGi bundles with the https://github.com/lihaoyi/mill[mill build tool]
 
 == Quickstart
@@ -177,7 +181,7 @@ I also accept {projectHome}/pulls[pull requests].
 
 * Update mill API to 0.6.0
 
-_See list of https://github.com/lefou/mill-osgi/compare/{prev-version}...{version}[commits since {prev-version}]._
+_See list of {projectHome}/compare/{prev-version}...{version}[commits since {prev-version}]._
 
 === mill-osgi 0.1.2 - 2020-01-19
 :prev-version: 0.1.1
