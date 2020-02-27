@@ -15,40 +15,7 @@ import $ivy.`com.lihaoyi::mill-contrib-scoverage:$MILL_VERSION`, mill.contrib.sc
 // The mill version used in the project/sources/dependencies, also default for integration tests
 def millVersion = "0.6.0"
 
-/** Build JARs. */
-def _build() = T.command {
-  core.jar()
-}
-
-/** Run tests. */
-def test() = T.command {
-  core.test.test()()
-  itest.test()()
-}
-
-def install() = T.command {
-  T.ctx().log.info("Installing")
-  test()()
-  core.publishLocal()()
-}
-
-def checkRelease: T[Boolean] = T.input {
-  if (GitSupport.publishVersion()._2.contains("DIRTY")) {
-    T.ctx().log.error("Project (git) state is dirty. Release not recommended!")
-    false
-  } else { true }
-}
-
-/** Test and release to Maven Central. */
-def release(
-  sonatypeCreds: String,
-  release: Boolean = true
-) = T.command {
-  if (checkRelease()) {
-    test()()
-    core.publish(sonatypeCreds = sonatypeCreds, release = release)()
-  }
-}
+val baseDir = build.millSourcePath
 
 object Deps {
   val scalaVersion = "2.12.10"
@@ -186,14 +153,54 @@ object itest extends MillIntegrationTestModule {
   def pluginsUnderTest = Seq(core, testsupport)
 }
 
-/**
- * Update the millw script.
- */
-def millw() = T.command {
-  // https://raw.githubusercontent.com/lefou/millw/master/millw
-  val target = Util.download("https://raw.githubusercontent.com/lefou/millw/master/millw")
-  val millw = build.millSourcePath / "millw"
-  os.copy.over(target.path, millw)
-  os.perms.set(millw, os.perms(millw) + PosixFilePermission.OWNER_EXECUTE)
-  target
+/** Convenience targets. */
+object P extends Module {
+
+  /** Build JARs. */
+  def build() = T.command {
+    core.jar()
+  }
+
+  /** Run tests. */
+  def test() = T.command {
+    core.test.test()()
+    itest.test()()
+  }
+
+  def install() = T.command {
+    T.ctx().log.info("Installing")
+    test()()
+    core.publishLocal()()
+  }
+
+  def checkRelease: T[Boolean] = T.input {
+    if (GitSupport.publishVersion()._2.contains("DIRTY")) {
+      T.ctx().log.error("Project (git) state is dirty. Release not recommended!")
+      false
+    } else { true }
+  }
+
+  /** Test and release to Maven Central. */
+  def release(
+               sonatypeCreds: String,
+               release: Boolean = true
+             ) = T.command {
+    if (checkRelease()) {
+      test()()
+      core.publish(sonatypeCreds = sonatypeCreds, release = release)()
+    }
+  }
+
+  /**
+   * Update the millw script.
+   */
+  def millw() = T.command {
+    // https://raw.githubusercontent.com/lefou/millw/master/millw
+    val target = Util.download("https://raw.githubusercontent.com/lefou/millw/master/millw")
+    val millw = baseDir / "millw"
+    os.copy.over(target.path, millw)
+    os.perms.set(millw, os.perms(millw) + PosixFilePermission.OWNER_EXECUTE)
+    target
+  }
+
 }
