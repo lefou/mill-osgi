@@ -14,4 +14,4 @@ env:
 
 script:
   - ./millw -i version
-  - ./millw -i test
+  - ./millw -i P.test
