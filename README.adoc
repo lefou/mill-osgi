@@ -160,7 +160,7 @@ The following table shows a matrix of compatible mill and mill-osgi versions.
 [options="header"]
 |===
 | mill-osgi | mill
-| 0.2.0 | 0.6.0 - 0.6.1
+| 0.2.0 | 0.6.0 - 0.6.2
 | 0.1.2 | 0.5.7 - 0.5.9
 | 0.1.1 | 0.5.7 - 0.5.9
 | 0.1.0 | 0.3.6 - 0.5.3
@@ -178,7 +178,7 @@ You can download binary releases from https://search.maven.org/search?q=a:de.tob
 
 == License
 
-Apache License, version 2
+This project is published under the https://www.apache.org/licenses/LICENSE-2.0[Apache License, Version 2.0].
 
 == About
 
