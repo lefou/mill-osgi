@@ -1,10 +1,11 @@
 import java.nio.file.attribute.PosixFilePermission
 
-import mill.define.{Module, Target}
+import mill.define.{Cross, Module, Target}
 import mill.eval.PathRef
 import mill.modules.Util
 import mill.scalalib._
 import mill.scalalib.publish._
+import os.Path
 
 // Run integration tests with mill
 import $ivy.`de.tototec::de.tobiasroeser.mill.integrationtest:0.2.1`, de.tobiasroeser.mill.integrationtest._
@@ -12,26 +13,44 @@ import $ivy.`de.tototec::de.tobiasroeser.mill.integrationtest:0.2.1`, de.tobiasr
 // Generate converage reports
 import $ivy.`com.lihaoyi::mill-contrib-scoverage:$MILL_VERSION`, mill.contrib.scoverage.ScoverageModule
 
-// The mill version used in the project/sources/dependencies, also default for integration tests
-def millVersion = "0.6.0"
-
 val baseDir = build.millSourcePath
 
-object Deps {
-  val scalaVersion = "2.12.10"
-  val scoverageVersion = "1.3.1"
+trait Deps {
+  // The mill API version used in the project/sources/dependencies, also default for integration tests
+  def millVersion: String
+  def millTestVersions: Seq[String]
+  def scalaVersion: String
+  val scoverageVersion = "1.4.1"
 
   val ammonite = ivy"com.lihaoyi:::ammonite:1.3.2"
   val bndlib = ivy"biz.aQute.bnd:biz.aQute.bndlib:4.3.1"
   val logbackClassic = ivy"ch.qos.logback:logback-classic:1.1.3"
-  val millMain = ivy"com.lihaoyi::mill-main:${millVersion}"
-  val millScalalib = ivy"com.lihaoyi::mill-scalalib:${millVersion}"
+  def millMain = ivy"com.lihaoyi::mill-main:${millVersion}"
+  def millScalalib = ivy"com.lihaoyi::mill-scalalib:${millVersion}"
   val scalaTest = ivy"org.scalatest::scalatest:3.0.8"
-  val scalaLibrary = ivy"org.scala-lang:scala-library:${scalaVersion}"
+  def scalaLibrary = ivy"org.scala-lang:scala-library:${scalaVersion}"
   val slf4j = ivy"org.slf4j:slf4j-api:1.7.30"
+}
+object Deps_0_6 extends Deps {
+  override val millVersion = "0.6.0"
+  override val millTestVersions = Seq(
+    "0.6.0",
+    "0.6.1",
+    "0.6.2"
+  )
+  override val scalaVersion = "2.12.10"
+}
+
+object Deps_0_7 extends Deps {
+  override val millVersion = "0.6.2-20-08228b"
+  override val millTestVersions = Seq(
+    "0.6.2-20-08228b"
+  )
+  override val scalaVersion = "2.13.2"
 }
 
 trait MillOsgiModule extends ScalaModule with PublishModule {
+  def Deps: Deps
   def scalaVersion = T { Deps.scalaVersion }
   def ivyDeps = T { Agg(Deps.scalaLibrary) }
   def publishVersion = GitSupport.publishVersion()._2
@@ -48,7 +67,12 @@ trait MillOsgiModule extends ScalaModule with PublishModule {
   }
 }
 
-object core extends MillOsgiModule with ScoverageModule {
+val millVersions: Map[String, Deps] = Map("0.6" -> Deps_0_6, "0.7" -> Deps_0_7)
+
+object core extends Cross[Core](millVersions.keySet.toSeq: _*)
+class Core(millApiVersion: String) extends MillOsgiModule with ScoverageModule {
+  override def millSourcePath: Path = super.millSourcePath / os.up
+  override def Deps = millVersions(millApiVersion)
 
   def scoverageVersion = T { Deps.scoverageVersion }
 
@@ -67,14 +91,14 @@ object core extends MillOsgiModule with ScoverageModule {
   )
 
   override def generatedSources: Target[Seq[PathRef]] = T{
-    val dest = T.ctx().dest
+    val dest = T.dest
     val infoClass =
       s"""// Generated with mill from build.sc
          |package de.tobiasroeser.mill.osgi.internal
          |
          |object BuildInfo {
          |  def millOsgiVerison = "${publishVersion()}"
-         |  def millVersion = "${millVersion}"
+         |  def millVersion = "${Deps.millVersion}"
          |}
          |""".stripMargin
     os.write(dest / "BuildInfo.scala", infoClass)
@@ -90,13 +114,16 @@ object core extends MillOsgiModule with ScoverageModule {
 
 }
 
-object testsupport extends MillOsgiModule {
+object testsupport extends Cross[TestSupport](millVersions.keySet.toSeq: _*)
+class TestSupport(millApiVersion: String) extends MillOsgiModule {
+  override def millSourcePath: Path = super.millSourcePath / os.up
+  override def Deps = millVersions(millApiVersion)
   def compileIvyDeps = Agg(
     Deps.millMain,
     Deps.millScalalib
   )
   override def artifactName = "mill-osgi-testsupport"
-  override def moduleDeps = Seq(core)
+  override def moduleDeps = Seq(core(millApiVersion))
 }
 
 import mill.define.Sources
@@ -145,12 +172,14 @@ object GitSupport extends Module {
 
 }
 
-object itest extends MillIntegrationTestModule {
-  def millTestVersion = T {
-    val ctx = T.ctx()
-    ctx.env.get("TEST_MILL_VERSION").filterNot(_.isEmpty).getOrElse(millVersion)
-  }
-  def pluginsUnderTest = Seq(core, testsupport)
+val testVersions = millVersions.flatMap { case (l,d) => d.millTestVersions.map(l -> _) }
+
+object itest extends Cross[Itest](testVersions.toSeq: _*)
+class Itest(millApiVersion: String, millVersion: String) extends MillIntegrationTestModule {
+  override def millSourcePath: Path = super.millSourcePath / os.up / os.up
+  def Deps = Deps_0_6
+  def millTestVersion = T { millVersion }
+  def pluginsUnderTest = Seq(core(millApiVersion), testsupport(millApiVersion))
 }
 
 /** Convenience targets. */
@@ -158,24 +187,26 @@ object P extends Module {
 
   /** Build JARs. */
   def build() = T.command {
-    core.jar()
+    Target.traverse(millVersions.keySet.toSeq)(core(_).jar)()
+    ()
   }
 
   /** Run tests. */
   def test() = T.command {
-    core.test.test()()
-    itest.test()()
+    Target.traverse(millVersions.keySet.toSeq)(core(_).test.test())()
+    ()
   }
 
   def install() = T.command {
-    T.ctx().log.info("Installing")
+    T.log.info("Installing")
     test()()
-    core.publishLocal()()
+    Target.traverse(millVersions.keySet.toSeq)(core(_).publishLocal())()
+    ()
   }
 
   def checkRelease: T[Boolean] = T.input {
     if (GitSupport.publishVersion()._2.contains("DIRTY")) {
-      T.ctx().log.error("Project (git) state is dirty. Release not recommended!")
+      T.log.error("Project (git) state is dirty. Release not recommended!")
       false
     } else { true }
   }
@@ -187,8 +218,9 @@ object P extends Module {
              ) = T.command {
     if (checkRelease()) {
       test()()
-      core.publish(sonatypeCreds = sonatypeCreds, release = release)()
+      Target.traverse(millVersions.keySet.toSeq)(core(_).publish(sonatypeCreds = sonatypeCreds, release = release))()
     }
+    ()
   }
 
   /**
