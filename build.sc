@@ -22,7 +22,6 @@ trait Deps {
   def scalaVersion: String
   val scoverageVersion = "1.4.1"
 
-  val ammonite = ivy"com.lihaoyi:::ammonite:1.3.2"
   val bndlib = ivy"biz.aQute.bnd:biz.aQute.bndlib:4.3.1"
   val logbackClassic = ivy"ch.qos.logback:logback-classic:1.1.3"
   def millMain = ivy"com.lihaoyi::mill-main:${millVersion}"
@@ -177,9 +176,9 @@ val testVersions = millVersions.flatMap { case (l,d) => d.millTestVersions.map(l
 object itest extends Cross[Itest](testVersions.toSeq: _*)
 class Itest(millApiVersion: String, millVersion: String) extends MillIntegrationTestModule {
   override def millSourcePath: Path = super.millSourcePath / os.up / os.up
-  def Deps = Deps_0_6
-  def millTestVersion = T { millVersion }
-  def pluginsUnderTest = Seq(core(millApiVersion), testsupport(millApiVersion))
+  def Deps = millVersions(millApiVersion)
+  override def millTestVersion = T { millVersion }
+  override def pluginsUnderTest = Seq(core(millApiVersion), testsupport(millApiVersion))
 }
 
 /** Convenience targets. */
