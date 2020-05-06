@@ -7,12 +7,7 @@ jdk:
   - openjdk8
   - openjdk11
 
-env:
-  - TEST_MILL_VERSION=
-  - TEST_MILL_VERSION=0.6.0
-  - TEST_MILL_VERSION=0.6.1
-  - TEST_MILL_VERSION=0.6.2
-
 script:
-  - ./millw -i version
-  - ./millw -i P.test
+  - ./millw -i --version
+  - ./millw -i -j 0 __.publishLocal $(pwd)/testRepo
+  - ./millw -i -j 0 __.testCached
