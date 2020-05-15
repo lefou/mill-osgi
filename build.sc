@@ -8,7 +8,7 @@ import mill.scalalib.publish._
 import os.Path
 
 // Run integration tests with mill
-import $ivy.`de.tototec::de.tobiasroeser.mill.integrationtest:0.2.1`, de.tobiasroeser.mill.integrationtest._
+import $ivy.`de.tototec::de.tobiasroeser.mill.integrationtest:0.3.0`, de.tobiasroeser.mill.integrationtest._
 
 // Generate converage reports
 import $ivy.`com.lihaoyi::mill-contrib-scoverage:$MILL_VERSION`, mill.contrib.scoverage.ScoverageModule
@@ -35,23 +35,24 @@ object Deps_0_6 extends Deps {
   override val millTestVersions = Seq(
     "0.6.0",
     "0.6.1",
-    "0.6.2"
+    "0.6.2",
+    "0.6.3"
   )
-  override val scalaVersion = "2.12.10"
+  override val scalaVersion = "2.12.11"
 }
 
 object Deps_0_7 extends Deps {
   override val millVersion = "0.6.2-20-08228b"
   override val millTestVersions = Seq(
-    "0.6.2-20-08228b"
+    "0.7.0"
   )
   override val scalaVersion = "2.13.2"
 }
 
 trait MillOsgiModule extends ScalaModule with PublishModule {
-  def Deps: Deps
-  def scalaVersion = T { Deps.scalaVersion }
-  def ivyDeps = T { Agg(Deps.scalaLibrary) }
+  def deps: Deps
+  def scalaVersion = T { deps.scalaVersion }
+  def ivyDeps = T { Agg(deps.scalaLibrary) }
   def publishVersion = GitSupport.publishVersion()._2
   def javacOptions = Seq("-source", "1.8", "-target", "1.8")
   def pomSettings = T {
@@ -66,27 +67,30 @@ trait MillOsgiModule extends ScalaModule with PublishModule {
   }
 }
 
-val millVersions: Map[String, Deps] = Map("0.6" -> Deps_0_6, "0.7" -> Deps_0_7)
+val millVersions: Map[String, Deps] = Map(
+  "0.6" -> Deps_0_6,
+  "0.7" -> Deps_0_7
+)
 
 object core extends Cross[Core](millVersions.keySet.toSeq: _*)
 class Core(millApiVersion: String) extends MillOsgiModule with ScoverageModule {
   override def millSourcePath: Path = super.millSourcePath / os.up
-  override def Deps = millVersions(millApiVersion)
+  override def deps = millVersions(millApiVersion)
 
-  def scoverageVersion = T { Deps.scoverageVersion }
+  def scoverageVersion = T { deps.scoverageVersion }
 
   override def artifactName = T { "de.tobiasroeser.mill.osgi" }
 
   def ivyDeps = T {
     super.ivyDeps() ++ Agg(
-      Deps.bndlib,
-      Deps.slf4j
+      deps.bndlib,
+      deps.slf4j
     )
   }
 
   def compileIvyDeps = Agg(
-    Deps.millMain,
-    Deps.millScalalib
+    deps.millMain,
+    deps.millScalalib
   )
 
   override def generatedSources: Target[Seq[PathRef]] = T{
@@ -97,7 +101,7 @@ class Core(millApiVersion: String) extends MillOsgiModule with ScoverageModule {
          |
          |object BuildInfo {
          |  def millOsgiVerison = "${publishVersion()}"
-         |  def millVersion = "${Deps.millVersion}"
+         |  def millVersion = "${deps.millVersion}"
          |}
          |""".stripMargin
     os.write(dest / "BuildInfo.scala", infoClass)
@@ -106,7 +110,7 @@ class Core(millApiVersion: String) extends MillOsgiModule with ScoverageModule {
 
   object test extends ScoverageTests {
     override def ivyDeps = T { Agg(
-      Deps.scalaTest
+      deps.scalaTest
     ) }
     def testFrameworks = Seq("org.scalatest.tools.Framework")
   }
@@ -116,10 +120,10 @@ class Core(millApiVersion: String) extends MillOsgiModule with ScoverageModule {
 object testsupport extends Cross[TestSupport](millVersions.keySet.toSeq: _*)
 class TestSupport(millApiVersion: String) extends MillOsgiModule {
   override def millSourcePath: Path = super.millSourcePath / os.up
-  override def Deps = millVersions(millApiVersion)
+  override def deps = millVersions(millApiVersion)
   def compileIvyDeps = Agg(
-    Deps.millMain,
-    Deps.millScalalib
+    deps.millMain,
+    deps.millScalalib
   )
   override def artifactName = "mill-osgi-testsupport"
   override def moduleDeps = Seq(core(millApiVersion))
