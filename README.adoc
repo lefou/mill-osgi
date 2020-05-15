@@ -1,6 +1,6 @@
 = mill-osgi - Build OSGi Bundles with mill
 :mill-min-version: 0.6.0
-:mill-osgi-version: 0.2.0
+:mill-osgi-version: 0.3.0
 :projectHome: https://github.com/lefou/mill-osgi
 :toc:
 :toc-placement: preamble
@@ -160,7 +160,8 @@ The following table shows a matrix of compatible mill and mill-osgi versions.
 [options="header"]
 |===
 | mill-osgi | mill
-| 0.2.0 | 0.6.0 - 0.6.2
+| 0.3.0 | 0.6.0 - 0.7.0
+| 0.2.0 | 0.6.0 - 0.6.3
 | 0.1.2 | 0.5.7 - 0.5.9
 | 0.1.1 | 0.5.7 - 0.5.9
 | 0.1.0 | 0.3.6 - 0.5.3
@@ -205,7 +206,10 @@ I also accept {projectHome}/pulls[pull requests].
 
 === {master}
 
+=== mill-osgi 0.3.0 - 2020-05-15
+
 * Added new build mode `CalculateManifest`, which only generates the manifest properties but leaves the jar creation to `JavaModule`.
+* Cross published for mill 0.6 (Scala 2.12) and 0.7 (Scala 2.13)
 
 === mill-osgi 0.2.0 - 2020-02-24
 :prev-version: 0.1.2
