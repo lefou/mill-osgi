@@ -42,9 +42,11 @@ object Deps_0_6 extends Deps {
 }
 
 object Deps_0_7 extends Deps {
-  override val millVersion = "0.6.2-20-08228b"
+  override val millVersion = "0.7.0"
   override val millTestVersions = Seq(
-    "0.7.0"
+    "0.7.0",
+    "0.7.1",
+    "0.7.2"
   )
   override val scalaVersion = "2.13.2"
 }
