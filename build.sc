@@ -8,7 +8,7 @@ import mill.scalalib.publish._
 import os.Path
 
 // Run integration tests with mill
-import $ivy.`de.tototec::de.tobiasroeser.mill.integrationtest:0.3.0`, de.tobiasroeser.mill.integrationtest._
+import $ivy.`de.tototec::de.tobiasroeser.mill.integrationtest:0.3.1`, de.tobiasroeser.mill.integrationtest._
 
 // Generate converage reports
 import $ivy.`com.lihaoyi::mill-contrib-scoverage:$MILL_VERSION`, mill.contrib.scoverage.ScoverageModule
