@@ -177,7 +177,7 @@ object GitSupport extends Module {
 
 }
 
-val testVersions = millVersions.flatMap { case (l,d) => d.millTestVersions.map(l -> _) }
+val testVersions = millVersions.toSeq.flatMap { case (l,d) => d.millTestVersions.map(l -> _) }
 
 object itest extends Cross[Itest](testVersions.toSeq: _*)
 class Itest(millApiVersion: String, millVersion: String) extends MillIntegrationTestModule {
