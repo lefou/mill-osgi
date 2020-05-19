@@ -16,7 +16,7 @@ jobs:
 
       - run: ./millw -i -j 0 __.publishLocal $(pwd)/testRepo
         if: ${{ matrix.os != 'windows-latest' }}
-      - run: ./millw.bat -i -j 0 __.publishLocal $(pwd)/testRepo
+      - run: .\millw.bat -i -j 0 __.publishLocal %GITHUB_WORKSPACE%/testRepo
         if: ${{ matrix.os == 'windows-latest' }}
 
       - run: ./millw -i -j 0 -k __.testCached
