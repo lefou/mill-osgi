@@ -6,7 +6,6 @@
 :toc-placement: preamble
 
 ifdef::env-github[]
-image:https://travis-ci.org/lefou/mill-osgi.svg?branch=master["Build Status", link="https://travis-ci.org/lefou/mill-osgi"]
 image:https://github.com/lefou/mill-osgi/workflows/.github/workflows/build.yml/badge.svg["GitHub Actions Build Status", link="https://github.com/lefou/mill-osgi/actions"]
 endif::[]
 
