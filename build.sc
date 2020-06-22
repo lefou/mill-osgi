@@ -1,17 +1,23 @@
+// mill plugins
+import $ivy.`de.tototec::de.tobiasroeser.mill.vcs.version:0.0.1`
+// Run integration tests with mill
+import $ivy.`de.tototec::de.tobiasroeser.mill.integrationtest:0.3.1`
+// Generate converage reports
+import $ivy.`com.lihaoyi::mill-contrib-scoverage:$MILL_VERSION`
+
 import java.nio.file.attribute.PosixFilePermission
 
+import de.tobiasroeser.mill.integrationtest._
+import de.tobiasroeser.mill.vcs.version._
+
+import mill.contrib.scoverage.ScoverageModule
 import mill.define.{Cross, Module, Target}
 import mill.eval.PathRef
 import mill.modules.Util
 import mill.scalalib._
 import mill.scalalib.publish._
+
 import os.Path
-
-// Run integration tests with mill
-import $ivy.`de.tototec::de.tobiasroeser.mill.integrationtest:0.3.1`, de.tobiasroeser.mill.integrationtest._
-
-// Generate converage reports
-import $ivy.`com.lihaoyi::mill-contrib-scoverage:$MILL_VERSION`, mill.contrib.scoverage.ScoverageModule
 
 val baseDir = build.millSourcePath
 
@@ -56,7 +62,7 @@ trait MillOsgiModule extends ScalaModule with PublishModule {
   def deps: Deps
   def scalaVersion = T { deps.scalaVersion }
   def ivyDeps = T { Agg(deps.scalaLibrary) }
-  def publishVersion = GitSupport.publishVersion()._2
+  def publishVersion = VcsVersion.vcsState().format()
   def javacOptions = Seq("-source", "1.8", "-target", "1.8")
   def pomSettings = T {
     PomSettings(
@@ -132,52 +138,6 @@ class TestSupport(millApiVersion: String) extends MillOsgiModule {
   override def moduleDeps = Seq(core(millApiVersion))
 }
 
-import mill.define.Sources
-
-object GitSupport extends Module {
-
-  /**
-   * The current git revision.
-   */
-  def gitHead: T[String] = T.input {
-    sys.env.get("TRAVIS_COMMIT").getOrElse(
-      os.proc('git, "rev-parse", "HEAD").call().out.trim
-    ).toString()
-  }
-
-  /**
-   * Calc a publishable version based on git tags and dirty state.
-   *
-   * @return A tuple of (the latest tag, the calculated version string)
-   */
-  def publishVersion: T[(String, String)] = T.input {
-    val tag =
-      try Option(
-        os.proc('git, 'describe, "--exact-match", "--tags", "--always", gitHead()).call().out.trim
-      )
-      catch {
-        case e => None
-      }
-
-    val dirtySuffix = os.proc('git, 'diff).call().out.string.trim() match {
-      case "" => ""
-      case s => "-DIRTY" + Integer.toHexString(s.hashCode)
-    }
-
-    tag match {
-      case Some(t) => (t, t)
-      case None =>
-        val latestTaggedVersion = os.proc('git, 'describe, "--abbrev=0", "--always", "--tags").call().out.trim
-
-        val commitsSinceLastTag =
-          os.proc('git, "rev-list", gitHead(), "--not", latestTaggedVersion, "--count").call().out.trim.toInt
-
-        (latestTaggedVersion, s"$latestTaggedVersion-$commitsSinceLastTag-${gitHead().take(6)}$dirtySuffix")
-    }
-  }
-
-}
-
 val testVersions = millVersions.toSeq.flatMap { case (l,d) => d.millTestVersions.map(l -> _) }
 
 object itest extends Cross[Itest](testVersions.toSeq: _*)
@@ -211,7 +171,7 @@ object P extends Module {
   }
 
   def checkRelease: T[Boolean] = T.input {
-    if (GitSupport.publishVersion()._2.contains("DIRTY")) {
+    if (VcsVersion.vcsState().dirtyHash.isDefined) {
       T.log.error("Project (git) state is dirty. Release not recommended!")
       false
     } else { true }
