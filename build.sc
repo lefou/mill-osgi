@@ -63,7 +63,8 @@ trait MillOsgiModule extends ScalaModule with PublishModule {
   def scalaVersion = T { deps.scalaVersion }
   def ivyDeps = T { Agg(deps.scalaLibrary) }
   def publishVersion = VcsVersion.vcsState().format()
-  def javacOptions = Seq("-source", "1.8", "-target", "1.8")
+  override def javacOptions = Seq("-source", "1.8", "-target", "1.8", "-encoding", "UTF-8")
+  override def scalacOptions = Seq("-target:jvm-1.8", "-encoding", "UTF-8")
   def pomSettings = T {
     PomSettings(
       description = "Mill module adding OSGi bundle support",
