@@ -1,8 +1,8 @@
 package de.tobiasroeser.mill.osgi
 
-import org.scalatest.FreeSpec
+import org.scalatest.freespec.AnyFreeSpec
 
-class OsgiBundleModuleTest extends FreeSpec {
+class OsgiBundleModuleTest extends AnyFreeSpec {
 
   "Calc BSN from group and artifact" - {
     Seq(
