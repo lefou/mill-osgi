@@ -32,7 +32,7 @@ trait Deps {
   val logbackClassic = ivy"ch.qos.logback:logback-classic:1.1.3"
   def millMain = ivy"com.lihaoyi::mill-main:${millVersion}"
   def millScalalib = ivy"com.lihaoyi::mill-scalalib:${millVersion}"
-  val scalaTest = ivy"org.scalatest::scalatest:3.2.0"
+  val scalaTest = ivy"org.scalatest::scalatest:3.2.2"
   def scalaLibrary = ivy"org.scala-lang:scala-library:${scalaVersion}"
   val slf4j = ivy"org.slf4j:slf4j-api:1.7.30"
 }
