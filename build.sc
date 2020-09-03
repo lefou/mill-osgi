@@ -39,10 +39,10 @@ trait Deps {
 object Deps_0_6 extends Deps {
   override val millVersion = "0.6.0"
   override val millTestVersions = Seq(
-    "0.6.0",
-    "0.6.1",
+    "0.6.3",
     "0.6.2",
-    "0.6.3"
+    "0.6.1",
+    "0.6.0",
   )
   override val scalaVersion = "2.12.11"
 }
@@ -50,13 +50,21 @@ object Deps_0_6 extends Deps {
 object Deps_0_7 extends Deps {
   override val millVersion = "0.7.0"
   override val millTestVersions = Seq(
-    "0.7.0",
-    "0.7.1",
+    "0.8.0",
+    "0.7.4",
+    "0.7.3",
     "0.7.2",
-    "0.7.3"
+    "0.7.1",
+    "0.7.0",
   )
   override val scalaVersion = "2.13.2"
 }
+
+/** Cross build versions */
+val millVersions: Map[String, Deps] = Map(
+  "0.6" -> Deps_0_6,
+  "0.7" -> Deps_0_7
+)
 
 trait MillOsgiModule extends ScalaModule with PublishModule {
   def deps: Deps
@@ -76,11 +84,6 @@ trait MillOsgiModule extends ScalaModule with PublishModule {
     )
   }
 }
-
-val millVersions: Map[String, Deps] = Map(
-  "0.6" -> Deps_0_6,
-  "0.7" -> Deps_0_7
-)
 
 object core extends Cross[Core](millVersions.keySet.toSeq: _*)
 class Core(millApiVersion: String) extends MillOsgiModule with ScoverageModule {
