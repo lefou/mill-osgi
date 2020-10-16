@@ -1,6 +1,6 @@
 = mill-osgi - Build OSGi Bundles with mill
 :mill-min-version: 0.6.0
-:mill-osgi-version: 0.3.0
+:mill-osgi-version: 0.3.1
 :projectHome: https://github.com/lefou/mill-osgi
 :toc:
 :toc-placement: preamble
@@ -54,6 +54,35 @@ $ mill show project.jar
 [1/1] show
 [39/39] project.jar
 "ref:14551bd1:/tmp/project/out/project/osgiBundle/dest/out.jar"
+----
+
+== Example using the `BuildMode.CalculateManifest`
+
+.File: `build.sc`
+[source,scala,subs="verbatim,attributes"]
+----
+// build.sc default imports
+import mill._, mill.scalalib._
+// This import the mill-osgi plugin
+import $ivy.`de.tototec::de.tobiasroeser.mill.osgi:{mill-osgi-version}`
+import de.tobiasroeser.mill.osgi._
+
+object project extends ScalaModule with OsgiBundleModule {
+
+  override def osgiBuildMode = OsgiBundleModule.BuildMode.CalculateManifest
+
+  override def scalaVersion = "2.13.3"
+
+  def bundleSymbolicName = "com.example.project"
+
+  def osgiHeaders = T{ super.osgiHeaders().copy(
+    `Export-Package`   = Seq("com.example.api"),
+    `Bundle-Activator` = Some("com.example.internal.Activator")
+  )}
+
+  // other settings ...
+
+}
 ----
 
 == Configuration
@@ -160,6 +189,7 @@ The following table shows a matrix of compatible mill and mill-osgi versions.
 [options="header"]
 |===
 | mill-osgi | mill
+| 0.3.1 | 0.6.0 - 0.8.0
 | 0.3.0 | 0.6.0 - 0.8.0
 | 0.2.0 | 0.6.0 - 0.6.3
 | 0.1.2 | 0.5.7 - 0.5.9
@@ -205,6 +235,15 @@ I also accept {projectHome}/pulls[pull requests].
 == Changelog
 
 === {main}
+
+=== mill-osgi 0.3.1 - 2020-11-16
+
+* Version bump bndlib t0 5.2.0
+* Version bump scalatest to 3.2.2
+* Various build related improvements
+** Github Actions instead of Travis-CI
+** Use of mill-vcs-version plugin
+
 
 === mill-osgi 0.3.0 - 2020-05-15
 
