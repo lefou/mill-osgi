@@ -38,9 +38,11 @@ object proj1 extends ScalaModule with OsgiBundleModule {
 
   override def bundleVersion = projVersion
 
-  override def osgiHeaders = super.osgiHeaders().copy(
-    `Export-Package` = Seq("proj1")
-  )
+  override def osgiHeaders = super
+    .osgiHeaders()
+    .copy(
+      `Export-Package` = Seq("proj1")
+    )
 }
 
 object proj2 extends ScalaModule with OsgiBundleModule {
@@ -48,9 +50,11 @@ object proj2 extends ScalaModule with OsgiBundleModule {
 
   override def bundleVersion = projVersion
 
-  override def osgiHeaders = super.osgiHeaders().copy(
-    `Export-Package` = Seq("proj2")
-  )
+  override def osgiHeaders = super
+    .osgiHeaders()
+    .copy(
+      `Export-Package` = Seq("proj2")
+    )
 
   override def moduleDeps = Seq(proj1)
 }

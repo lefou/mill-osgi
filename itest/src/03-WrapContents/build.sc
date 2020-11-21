@@ -8,20 +8,28 @@ import mill.define.Target
 def verify() = T.command {
   import de.tobiasroeser.mill.osgi.testsupport.TestSupport._
 
-    withManifest(akkaHttpCore.osgiBundle().path) { manifest =>
-      checkExact(manifest, "Manifest-Version", "1.0")
-      checkExact(manifest, "Bundle-SymbolicName", "akkaHttpCore_2.12")
-      checkExact(manifest, "Bundle-Version", "0.0.0")
-    }
+  withManifest(akkaHttpCore.osgiBundle().path) { manifest =>
+    checkExact(manifest, "Manifest-Version", "1.0")
+    checkExact(manifest, "Bundle-SymbolicName", "akkaHttpCore_2.12")
+    checkExact(manifest, "Bundle-Version", "0.0.0")
+  }
 
   val origEntries = jarFileEntries(akkaHttpCore.originalJar().path)
   val osgiEntries = jarFileEntries(akkaHttpCore.osgiBundle().path)
 
   val missingEntries = origEntries.filterNot(e => osgiEntries.contains(e))
-  assert("Wrapped jar has no missing entries", missingEntries.isEmpty, s"\nMissing entries:\n  ${missingEntries.mkString(",\n  ")}")
+  assert(
+    "Wrapped jar has no missing entries",
+    missingEntries.isEmpty,
+    s"\nMissing entries:\n  ${missingEntries.mkString(",\n  ")}"
+  )
 
   val addedEntries = osgiEntries.filterNot(e => origEntries.contains(e))
-  assert("Wrapped jar has no additional entries", addedEntries.isEmpty, s"\nAdded entries:\n  ${addedEntries.mkString(",\n  ")}")
+  assert(
+    "Wrapped jar has no additional entries",
+    addedEntries.isEmpty,
+    s"\nAdded entries:\n  ${addedEntries.mkString(",\n  ")}"
+  )
 
   assert(
     "Wrapped jar contains the same entries",
@@ -72,16 +80,18 @@ object akkaHttpCore extends ScalaModule with OsgiBundleModule {
   }
 
   override def osgiHeaders: T[OsgiHeaders] = T {
-    super.osgiHeaders().copy(
-      `Export-Package` = Seq(
-        "akka.http",
-        // "akka.http.ccompat",
-        "akka.http.ccompat.imm",
-        "akka.http.impl.*",
-        "akka.http.javadsl.*",
-        "akka.http.scaladsl.*",
+    super
+      .osgiHeaders()
+      .copy(
+        `Export-Package` = Seq(
+          "akka.http",
+          // "akka.http.ccompat",
+          "akka.http.ccompat.imm",
+          "akka.http.impl.*",
+          "akka.http.javadsl.*",
+          "akka.http.scaladsl.*"
+        )
       )
-    )
   }
 
 }

@@ -59,7 +59,7 @@ trait TestSupport {
   }
 
   def assert(check: String, condition: Boolean, hint: => String): Unit = {
-    if(condition) println(s"Checked: ${check}")
+    if (condition) println(s"Checked: ${check}")
     else println(s"FAILED: ${check}")
     assert(condition, hint)
   }

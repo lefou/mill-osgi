@@ -42,7 +42,7 @@ object Deps_0_6 extends Deps {
     "0.6.3",
     "0.6.2",
     "0.6.1",
-    "0.6.0",
+    "0.6.0"
   )
   override val scalaVersion = "2.12.11"
 }
@@ -55,7 +55,7 @@ object Deps_0_7 extends Deps {
     "0.7.3",
     "0.7.2",
     "0.7.1",
-    "0.7.0",
+    "0.7.0"
   )
   override val scalaVersion = "2.13.2"
 }
@@ -106,7 +106,7 @@ class Core(millApiVersion: String) extends MillOsgiModule with ScoverageModule {
     deps.millScalalib
   )
 
-  override def generatedSources: Target[Seq[PathRef]] = T{
+  override def generatedSources: Target[Seq[PathRef]] = T {
     val dest = T.dest
     val infoClass =
       s"""// Generated with mill from build.sc
@@ -118,13 +118,15 @@ class Core(millApiVersion: String) extends MillOsgiModule with ScoverageModule {
          |}
          |""".stripMargin
     os.write(dest / "BuildInfo.scala", infoClass)
-      super.generatedSources() ++ Seq(PathRef(dest))
+    super.generatedSources() ++ Seq(PathRef(dest))
   }
 
   object test extends ScoverageTests {
-    override def ivyDeps = T { Agg(
-      deps.scalaTest
-    ) }
+    override def ivyDeps = T {
+      Agg(
+        deps.scalaTest
+      )
+    }
     def testFrameworks = Seq("org.scalatest.tools.Framework")
   }
 
@@ -142,7 +144,7 @@ class TestSupport(millApiVersion: String) extends MillOsgiModule {
   override def moduleDeps = Seq(core(millApiVersion))
 }
 
-val testVersions = millVersions.toSeq.flatMap { case (l,d) => d.millTestVersions.map(l -> _) }
+val testVersions = millVersions.toSeq.flatMap { case (l, d) => d.millTestVersions.map(l -> _) }
 
 object itest extends Cross[Itest](testVersions.toSeq: _*)
 class Itest(millApiVersion: String, millVersion: String) extends MillIntegrationTestModule {
@@ -183,9 +185,9 @@ object P extends Module {
 
   /** Test and release to Maven Central. */
   def release(
-               sonatypeCreds: String,
-               release: Boolean = true
-             ) = T.command {
+      sonatypeCreds: String,
+      release: Boolean = true
+  ) = T.command {
     if (checkRelease()) {
       test()()
       Target.traverse(millVersions.keySet.toSeq)(core(_).publish(sonatypeCreds = sonatypeCreds, release = release))()
