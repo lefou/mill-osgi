@@ -1,6 +1,7 @@
 = mill-osgi - Build OSGi Bundles with mill
 :mill-min-version: 0.6.0
-:mill-osgi-version: 0.3.1
+:mill-osgi-version: 0.3.2
+:mill-platform: 0.9.3
 :projectHome: https://github.com/lefou/mill-osgi
 :toc:
 :toc-placement: preamble
@@ -13,13 +14,13 @@ Plug-in to build OSGi bundles with the https://github.com/lihaoyi/mill[mill buil
 
 == Quickstart
 
-.File: `build.sc`
+.File: `build.sc` (mill {mill-platform})
 [source,scala,subs="verbatim,attributes"]
 ----
 // build.sc default imports
 import mill._, mill.scalalib._
 // This import the mill-osgi plugin
-import $ivy.`de.tototec::de.tobiasroeser.mill.osgi:{mill-osgi-version}`
+import $ivy.`de.tototec::de.tobiasroeser.mill.osgi_mill{mill-platform}:{mill-osgi-version}`
 import de.tobiasroeser.mill.osgi._
 
 object project extends ScalaModule with OsgiBundleModule {
@@ -58,13 +59,13 @@ $ mill show project.jar
 
 == Example using the `BuildMode.CalculateManifest`
 
-.File: `build.sc`
+.File: `build.sc` (mill {mill-platform})
 [source,scala,subs="verbatim,attributes"]
 ----
 // build.sc default imports
 import mill._, mill.scalalib._
 // This import the mill-osgi plugin
-import $ivy.`de.tototec::de.tobiasroeser.mill.osgi:{mill-osgi-version}`
+import $ivy.`de.tototec::de.tobiasroeser.mill.osgi_mill{mill-platform}:{mill-osgi-version}`
 import de.tobiasroeser.mill.osgi._
 
 object project extends ScalaModule with OsgiBundleModule {
@@ -189,6 +190,7 @@ The following table shows a matrix of compatible mill and mill-osgi versions.
 [options="header"]
 |===
 | mill-osgi | mill
+| 0.3.2 | 0.6.0 - 0.9.3
 | 0.3.1 | 0.6.0 - 0.8.0
 | 0.3.0 | 0.6.0 - 0.8.0
 | 0.2.0 | 0.6.0 - 0.6.3
@@ -205,7 +207,19 @@ The following table shows a matrix of compatible mill and mill-osgi versions.
 
 == Download
 
-You can download binary releases from https://search.maven.org/search?q=a:de.tobiasroeser.mill.osgi_2.12%20g:de.tototec[Maven Central].
+You can download binary releases from https://search.maven.org/search?q=g:de.tototec[Maven Central].
+
+Please make sure to use the correct _mill platform suffix_ matching your used mill version.
+
+.Mill Platform suffix
+[options="header"]
+|===
+| mill version  | mill platform | suffix | example
+| 0.9.3 -       | 0.9 | `_mill0.9` | ```$ivy.`de.tototec::de.tobiasroeser.mill.osgi_mill0.9:{version}````
+| 0.7.0 - 0.8.0 | 0.7 | `_mill0.7` | ```$ivy.`de.tototec::de.tobiasroeser.mill.osgi_mill0.7:{version}````
+| 0.6.0 - 0.6.3 | 0.6 | `_mill0.6` | ```$ivy.`de.tototec::de.tobiasroeser.mill.osgi_mill0.6:{version}````
+|===
+
 
 == License
 
@@ -234,11 +248,14 @@ I also accept {projectHome}/pulls[pull requests].
 
 == Changelog
 
-=== {main}
+=== mill-osgi 0.3.2 - 2020-12-02
+
+* Support for mill API 0.9.3
+* Introduced new artifact name suffix for the mill API (`_mill0.9`) to enable continuous backwards compatibility
 
 === mill-osgi 0.3.1 - 2020-11-16
 
-* Version bump bndlib t0 5.2.0
+* Version bump bndlib to 5.2.0
 * Version bump scalatest to 3.2.2
 * Various build related improvements
 ** Github Actions instead of Travis-CI
