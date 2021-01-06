@@ -1,7 +1,7 @@
 = mill-osgi - Build OSGi Bundles with mill
 :mill-min-version: 0.6.0
 :mill-osgi-version: 0.3.2
-:mill-platform: 0.9.3
+:mill-platform: 0.9
 :projectHome: https://github.com/lefou/mill-osgi
 :toc:
 :toc-placement: preamble
