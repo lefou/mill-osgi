@@ -165,7 +165,7 @@ trait OsgiBundleModule extends JavaModule {
    * Build the OSGi Bundle by using the bnd tool.
    */
   def osgiBundle: T[PathRef] = T {
-    val jar = osgiBundleTask()
+    val jar = osgiBundleTask(osgiBundleBuilderTask)()
     val outputPath = T.ctx().dest / s"${bundleSymbolicName()}-${bundleVersion()}.jar"
     jar.write(outputPath.toIO)
     PathRef(outputPath)
@@ -175,7 +175,7 @@ trait OsgiBundleModule extends JavaModule {
    * Generated the OSGi Bundle manifest by using the bnd tool.
    */
   def osgiManifest: T[PathRef] = T {
-    val jar = osgiBundleTask()
+    val jar = osgiBundleTask(osgiBundleBuilderTask)()
     val manifest = jar.getManifest()
 
     val outputPath = T.ctx().dest / s"${bundleSymbolicName()}-${bundleVersion()}.jar"
@@ -196,7 +196,7 @@ trait OsgiBundleModule extends JavaModule {
     // Mill defined
     val pre = super.manifest()
     // bnd calculated
-    val manifest = osgiBundleTask().getManifest()
+    val manifest = osgiBundleTask(osgiBundleBuilderTask)().getManifest()
     def entryAsStringPair(entry: java.util.Map.Entry[Object, Object]): (String, String) = {
       entry.getKey().toString() -> Option(entry.getValue()).map(_.toString()).getOrElse("")
     }
@@ -209,7 +209,7 @@ trait OsgiBundleModule extends JavaModule {
   /**
    * Build the OSGi Bundle.
    */
-  def osgiBundleTask: Task[Jar] = T.task {
+  def osgiBundleBuilderTask: Task[Builder] = T.task {
     val log = T.ctx().log
 
     val currentRunningMillVersion = T.ctx().env.get("MILL_VERSION")
@@ -295,6 +295,16 @@ trait OsgiBundleModule extends JavaModule {
     //        }
     //    }.mkString("\n  "))
 
+    builder
+  }
+
+  /**
+   * Build the OSGi Bundle.
+   */
+  def osgiBundleTask(builderTask: Task[Builder]): Task[Jar] = T.task {
+    val log = T.log
+
+    val builder = builderTask()
     val jar = builder.build()
 
     builder.getErrors().asScala.foreach(msg => log.error("bnd error: " + msg))
