@@ -2,7 +2,7 @@
 import $ivy.`de.tototec::de.tobiasroeser.mill.vcs.version_mill0.9:0.1.0`
 import mill.T
 // Run integration tests with mill
-import $ivy.`de.tototec::de.tobiasroeser.mill.integrationtest_mill0.9:0.4.0`
+import $ivy.`de.tototec::de.tobiasroeser.mill.integrationtest_mill0.9:0.4.0-5-9dce73`
 // Generate converage reports
 import $ivy.`com.lihaoyi::mill-contrib-scoverage:$MILL_VERSION`
 
@@ -44,6 +44,7 @@ object Deps_0_9 extends Deps {
   override def millPlatform: String = "0.9"
   override val scalaVersion = "2.13.4"
   override val millTestVersions = Seq(
+    "0.9.4",
     "0.9.3"
   )
 }
