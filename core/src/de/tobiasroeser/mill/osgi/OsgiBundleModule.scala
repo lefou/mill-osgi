@@ -36,7 +36,7 @@ trait OsgiBundleModule extends JavaModule {
    */
   override def transitiveLocalClasspath: T[Agg[PathRef]] = osgiBuildMode match {
     case BuildMode.ReplaceJarTarget => T {
-      Task.traverse(recursiveModuleDeps) { m =>
+      T.traverse(recursiveModuleDeps) { m =>
         T.task {
           Agg(m.jar())
         }
@@ -59,7 +59,7 @@ trait OsgiBundleModule extends JavaModule {
    */
   override def jar: T[PathRef] = osgiBuildMode match {
     case BuildMode.ReplaceJarTarget => T{ osgiBundle() }
-    case BuildMode.CalculateManifest => T{ super.jar() }
+    case BuildMode.CalculateManifest => super.jar
   }
 
   /**
@@ -72,7 +72,7 @@ trait OsgiBundleModule extends JavaModule {
       calcBundleSymbolicName(pm.pomSettings().organization, artifactId())
     }
     case _ =>
-      artifactId()
+      artifactId
   }
 
   /**
