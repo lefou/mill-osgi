@@ -8,7 +8,7 @@ import scala.util.Try
 import aQute.bnd.osgi.{Builder, Constants, Jar}
 import de.tobiasroeser.mill.osgi.internal.BuildInfo
 import mill._
-import mill.define.Task
+import mill.define.{Target, Task}
 import mill.eval.PathRef
 import mill.modules.Jvm
 import mill.scalalib.{JavaModule, PublishModule}
@@ -34,12 +34,22 @@ trait OsgiBundleModule extends JavaModule {
    * JAR files instead of just the classes directories where possible.
    * This is needed, as only the final JARs contain proper OSGi manifest entries.
    */
-  override def transitiveLocalClasspath: T[Agg[PathRef]] = T {
-    Task.traverse(recursiveModuleDeps) { m =>
-      T.task {
-        Agg(m.jar())
-      }
-    }().flatten
+  override def transitiveLocalClasspath: T[Agg[PathRef]] = osgiBuildMode match {
+    case BuildMode.ReplaceJarTarget => T {
+      Task.traverse(recursiveModuleDeps) { m =>
+        T.task {
+          Agg(m.jar())
+        }
+      }().flatten
+    }
+    case BuildMode.CalculateManifest => super.transitiveLocalClasspath
+  }
+
+  override def localClasspath: T[Seq[PathRef]] = osgiBuildMode match {
+    case BuildMode.ReplaceJarTarget => super.localClasspath
+    case BuildMode.CalculateManifest => T {
+      Seq(osgiManifest()) ++ super.localClasspath()
+    }
   }
 
   /**
@@ -49,7 +59,7 @@ trait OsgiBundleModule extends JavaModule {
    */
   override def jar: T[PathRef] = osgiBuildMode match {
     case BuildMode.ReplaceJarTarget => T{ osgiBundle() }
-    case BuildMode.CalculateManifest => super.jar
+    case BuildMode.CalculateManifest => T{ super.jar() }
   }
 
   /**
@@ -173,19 +183,21 @@ trait OsgiBundleModule extends JavaModule {
 
   /**
    * Generated the OSGi Bundle manifest by using the bnd tool.
+   * @return The path containing `META-INF/MANIFEST.MF`, can be used as classpath too.
    */
   def osgiManifest: T[PathRef] = T {
     val jar = osgiBundleTask()
     val manifest = jar.getManifest()
 
-    val outputPath = T.ctx().dest / s"${bundleSymbolicName()}-${bundleVersion()}.jar"
-    val stream = new FileOutputStream(outputPath.toIO)
+    val outputFile = T.dest / "META-INF" / "MANIFEST.MF"
+    os.makeDir.all(outputFile / os.up)
+    val stream = new FileOutputStream(outputFile.toIO)
     try {
       manifest.write(stream)
     } finally {
       stream.close()
     }
-    PathRef(outputPath)
+    PathRef(T.dest)
   }
 
   /**
@@ -209,7 +221,12 @@ trait OsgiBundleModule extends JavaModule {
   /**
    * Build the OSGi Bundle.
    */
-  def osgiBundleTask: Task[Jar] = T.task {
+  def osgiBundleTask: Task[Jar] = osgiBuildMode match {
+    case BuildMode.ReplaceJarTarget => osgiBundleTask(localClasspath)
+    case BuildMode.CalculateManifest => osgiBundleTask(super.localClasspath)
+  }
+
+  def osgiBundleTask(localClasspath: Task[Seq[PathRef]]): Task[Jar] = T.task {
     val log = T.ctx().log
 
     val currentRunningMillVersion = T.ctx().env.get("MILL_VERSION")
