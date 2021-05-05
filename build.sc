@@ -44,6 +44,8 @@ object Deps_0_9 extends Deps {
   override def millPlatform: String = "0.9"
   override val scalaVersion = "2.13.4"
   override val millTestVersions = Seq(
+    "0.9.6",
+    "0.9.5",
     "0.9.4",
     "0.9.3"
   )
