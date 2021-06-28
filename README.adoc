@@ -8,6 +8,7 @@
 
 ifdef::env-github[]
 image:https://github.com/lefou/mill-osgi/workflows/.github/workflows/build.yml/badge.svg["GitHub Actions Build Status", link="https://github.com/lefou/mill-osgi/actions"]
+image:https://codecov.io/gh/lefou/mill-osgi/branch/main/graph/badge.svg["Test Coverage (Codecov.io)", link="https://codecov.io/gh/lefou/mill-osgi"]
 endif::[]
 
 Plug-in to build OSGi bundles with the https://github.com/lihaoyi/mill[mill build tool]
