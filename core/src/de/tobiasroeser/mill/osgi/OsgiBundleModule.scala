@@ -36,20 +36,20 @@ trait OsgiBundleModule extends JavaModule {
    */
   override def transitiveLocalClasspath: T[Agg[PathRef]] = osgiBuildMode match {
     case BuildMode.ReplaceJarTarget => T {
-      T.traverse(recursiveModuleDeps) { m =>
-        T.task {
-          Agg(m.jar())
-        }
-      }().flatten
-    }
+        T.traverse(recursiveModuleDeps) { m =>
+          T.task {
+            Agg(m.jar())
+          }
+        }().flatten
+      }
     case BuildMode.CalculateManifest => super.transitiveLocalClasspath
   }
 
   override def localClasspath: T[Seq[PathRef]] = osgiBuildMode match {
     case BuildMode.ReplaceJarTarget => super.localClasspath
     case BuildMode.CalculateManifest => T {
-      Seq(osgiManifest()) ++ super.localClasspath()
-    }
+        Seq(osgiManifest()) ++ super.localClasspath()
+      }
   }
 
   /**
@@ -58,7 +58,7 @@ trait OsgiBundleModule extends JavaModule {
    * If [[osgiBuildMode]] is [[BuildMode.ReplaceJarTarget]] then this links to [[osgiBundle]] instead.
    */
   override def jar: T[PathRef] = osgiBuildMode match {
-    case BuildMode.ReplaceJarTarget => T{ osgiBundle() }
+    case BuildMode.ReplaceJarTarget => T { osgiBundle() }
     case BuildMode.CalculateManifest => super.jar
   }
 
@@ -69,8 +69,8 @@ trait OsgiBundleModule extends JavaModule {
    */
   def bundleSymbolicName: T[String] = this match {
     case pm: PublishModule => T {
-      calcBundleSymbolicName(pm.pomSettings().organization, artifactId())
-    }
+        calcBundleSymbolicName(pm.pomSettings().organization, artifactId())
+      }
     case _ =>
       artifactId
   }
@@ -81,8 +81,8 @@ trait OsgiBundleModule extends JavaModule {
    */
   def bundleVersion: T[String] = this match {
     case pm: PublishModule => T {
-      pm.publishVersion()
-    }
+        pm.publishVersion()
+      }
     case _ => "0.0.0"
   }
 
@@ -108,27 +108,28 @@ trait OsgiBundleModule extends JavaModule {
   }
 
   def osgiHeaders: T[OsgiHeaders] = {
-    def withDefaults: OsgiHeaders => OsgiHeaders = h => h.copy(
-      `Import-Package` = Seq("*")
-    )
+    def withDefaults: OsgiHeaders => OsgiHeaders = h =>
+      h.copy(
+        `Import-Package` = Seq("*")
+      )
 
     this match {
       case pm: PublishModule => T {
-        val pom = pm.pomSettings()
-        withDefaults(OsgiHeaders(
-          `Bundle-SymbolicName` = bundleSymbolicName(),
-          `Bundle-Version` = Option(bundleVersion()),
-          `Bundle-License` = pom.licenses.map(l => l.url.toString),
-          `Bundle-Vendor` = Option(pom.organization),
-          `Bundle-Description` = Option(pom.description)
-        ))
-      }
+          val pom = pm.pomSettings()
+          withDefaults(OsgiHeaders(
+            `Bundle-SymbolicName` = bundleSymbolicName(),
+            `Bundle-Version` = Option(bundleVersion()),
+            `Bundle-License` = pom.licenses.map(l => l.url.toString),
+            `Bundle-Vendor` = Option(pom.organization),
+            `Bundle-Description` = Option(pom.description)
+          ))
+        }
       case _ => T {
-        withDefaults(OsgiHeaders(
-          `Bundle-SymbolicName` = bundleSymbolicName(),
-          `Bundle-Version` = Option(bundleVersion())
-        ))
-      }
+          withDefaults(OsgiHeaders(
+            `Bundle-SymbolicName` = bundleSymbolicName(),
+            `Bundle-Version` = Option(bundleVersion())
+          ))
+        }
     }
   }
 
@@ -202,8 +203,9 @@ trait OsgiBundleModule extends JavaModule {
 
   /**
    * Creates a manifest representation which can be modified or replaced.
-   * The default implementation generates OSGi manifest entries from compiled classes with bnd tool and additionally adds a `Main-Class`, if defined in [[mainClass]].
-   **/
+   * The default implementation generates OSGi manifest entries from compiled classes with bnd tool and
+   * additionally adds a `Main-Class`, if defined in [[mainClass]].
+   */
   override def manifest: T[Jvm.JarManifest] = T {
     // Mill defined
     val pre = super.manifest()
@@ -214,7 +216,9 @@ trait OsgiBundleModule extends JavaModule {
     }
     Jvm.JarManifest(
       main = pre.main ++ manifest.getMainAttributes.entrySet().asScala.map(entryAsStringPair).toMap,
-      groups = pre.groups ++ manifest.getEntries().asScala.map(e => e._1 -> e._2.entrySet().asScala.map(entryAsStringPair).toMap)
+      groups = pre.groups ++ manifest.getEntries().asScala.map(e =>
+        e._1 -> e._2.entrySet().asScala.map(entryAsStringPair).toMap
+      )
     )
   }
 
@@ -231,7 +235,9 @@ trait OsgiBundleModule extends JavaModule {
 
     val currentRunningMillVersion = T.ctx().env.get("MILL_VERSION")
     if (!checkMillVersion(currentRunningMillVersion)) {
-      log.error(s"Your used mill version is most probably too old. In case of errors use (at least) mill version ${BuildInfo.millVersion}.")
+      log.error(
+        s"Your used mill version is most probably too old. In case of errors use (at least) mill version ${BuildInfo.millVersion}."
+      )
     }
 
     val builder = new Builder()
@@ -284,8 +290,11 @@ trait OsgiBundleModule extends JavaModule {
     }
 
     if (includeSources()) {
-      mergeSeqProps(builder, Constants.INCLUDERESOURCE,
-        allSources().filter(_.path.toIO.exists()).map(s => "OSGI-OPT/src=" + s.path.toIO.getAbsolutePath()).toList)
+      mergeSeqProps(
+        builder,
+        Constants.INCLUDERESOURCE,
+        allSources().filter(_.path.toIO.exists()).map(s => "OSGI-OPT/src=" + s.path.toIO.getAbsolutePath()).toList
+      )
     }
 
     // TODO: Some validation that should at least war
@@ -358,11 +367,11 @@ object OsgiBundleModule {
     builder.setProperty(key, (existing ++ value).mkString(","))
   }
 
-  protected[osgi] def checkMillVersion(millVersion: Option[String]): Boolean = checkMillVersion(BuildInfo.millVersion, millVersion)
+  protected[osgi] def checkMillVersion(millVersion: Option[String]): Boolean =
+    checkMillVersion(BuildInfo.millVersion, millVersion)
 
   protected[osgi] def checkMillVersion(buildVersion: String, millVersion: Option[String]): Boolean = millVersion match {
     case Some(v) =>
-
       /** Extract the major, minor and micro version parts of the given version string. */
       def parseVersion(version: String): Try[Array[Int]] = Try {
         version
@@ -376,8 +385,9 @@ object OsgiBundleModule {
       val runMillVersion = parseVersion(v).getOrElse(Array(999, 999, 999))
 
       (runMillVersion(0) > buildMillVersion(0)) ||
-        (runMillVersion(0) == buildMillVersion(0) && runMillVersion(1) > buildMillVersion(1)) ||
-        (runMillVersion(0) == buildMillVersion(0) && runMillVersion(1) == buildMillVersion(1) && runMillVersion(2) >= buildMillVersion(2))
+      (runMillVersion(0) == buildMillVersion(0) && runMillVersion(1) > buildMillVersion(1)) ||
+      (runMillVersion(0) == buildMillVersion(0) && runMillVersion(1) == buildMillVersion(1) &&
+        runMillVersion(2) >= buildMillVersion(2))
 
     case _ =>
       // ignore
