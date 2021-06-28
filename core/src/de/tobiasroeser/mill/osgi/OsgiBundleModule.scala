@@ -243,18 +243,27 @@ trait OsgiBundleModule extends JavaModule {
     val bndClasspath = (compileClasspath() ++ localClasspath()).toList.map(p => p.path.toIO).filter(_.exists()).asJava
     builder.setClasspath(bndClasspath)
 
-    // TODO: scan classes directory and auto-add all dirs as private package
-    val classesPath = compile().classes.path
-    val ps: Seq[Path] = if (!os.exists(classesPath)) Seq() else os.walk(classesPath)
-    val packages = ps.filter(_.toIO.isFile()).flatMap { pFull =>
-      val p = pFull.relativeTo(classesPath)
-      if (p.segments.size > 1) {
-        Seq((p / os.up).segments.mkString("."))
-      } else {
-        // Find way to include top-level package
-        Seq(".")
-      }
-    }.distinct
+    if (osgiBuildMode == BuildMode.ReplaceJarTarget) {
+      // We need to make sure we package all classfiles, event if they are not exported
+      // Unfortunately, this doesn't work very well for to top-level (no-name) package
+      // and also is known to include to much resource files (from dependencies) into the top-level package.
+      // That's why the BuildMode.CalcuateManifest is expected to produce better jars
+
+      // TODO: scan classes directory and auto-add all dirs as private package
+      val classesPath = compile().classes.path
+      val ps: Seq[Path] = if (!os.exists(classesPath)) Seq() else os.walk(classesPath)
+      val packages = ps
+        .filter(_.toIO.isFile())
+        .flatMap { pFull =>
+          val p = pFull.relativeTo(classesPath)
+          if (p.segments.size > 1) {
+            Seq((p / os.up).segments.mkString("."))
+          } else {
+            // Find way to include top-level package
+            Seq(".")
+          }
+        }
+        .distinct
 
     if (!packages.isEmpty) {
       builder.setProperty(Constants.PRIVATE_PACKAGE, packages.mkString(","))
