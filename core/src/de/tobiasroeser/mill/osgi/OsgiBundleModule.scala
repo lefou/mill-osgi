@@ -265,9 +265,11 @@ trait OsgiBundleModule extends JavaModule {
         }
         .distinct
 
-    if (!packages.isEmpty) {
-      builder.setProperty(Constants.PRIVATE_PACKAGE, packages.mkString(","))
+      if (!packages.isEmpty) {
+        builder.setProperty(Constants.PRIVATE_PACKAGE, packages.mkString(","))
+      }
     }
+
     //    // Special case, files in top level package
     //    // Those can't be exported, but we include them
     //    val rootPackageFiles: LsSeq = ammonite.ops.ls ! (classesPath)
