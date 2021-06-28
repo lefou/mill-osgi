@@ -8,6 +8,7 @@ env:
 jobs: 
   build:
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
         java-version: [1.8, 11]
