@@ -1,6 +1,8 @@
+import $exec.plugins
+import $exec.shared
+
 import mill._
 import mill.scalalib._
-import $exec.plugins
 import de.tobiasroeser.mill.osgi._
 
 def verify() = T.command {

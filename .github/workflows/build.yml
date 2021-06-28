@@ -35,6 +35,12 @@ jobs:
       - run: ./millw.bat -i -k __.testCached
         if: matrix.os == 'windows-latest'
 
+      - name: Upload scoverage reports to codecov.io
+        uses: codecov/codecov-action@v1
+        with:
+          file: ./out/*/scoverage/xmlReport/dest/scoverage.xml
+        continue-on-error: true
+
       - name: Setup GPG secrets
         if: matrix.os == env.PUBLISH_OS && matrix.java-version == env.PUBLISH_JAVA_VERSION && github.ref == env.PUBLISH_BRANCH && github.event_name == 'push'
         run: |

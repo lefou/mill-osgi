@@ -248,6 +248,11 @@ I also accept {projectHome}/pulls[pull requests].
 
 == Changelog
 
+=== {main}
+
+* Improved `BuildMode.CalculateManifest` mode and skip `Private-Package` header calculation
+* Added coverage data collected from integration tests
+
 === mill-osgi 0.3.2 - 2020-12-02
 
 * Support for mill API 0.9.3
