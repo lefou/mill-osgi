@@ -222,11 +222,11 @@ trait OsgiBundleModule extends JavaModule {
    * Build the OSGi Bundle.
    */
   def osgiBundleTask: Task[Jar] = osgiBuildMode match {
-    case BuildMode.ReplaceJarTarget => osgiBundleTask(localClasspath)
-    case BuildMode.CalculateManifest => osgiBundleTask(super.localClasspath)
+    case BuildMode.ReplaceJarTarget => osgiBundleTask(localClasspath, calcPrivatePackage = true)
+    case BuildMode.CalculateManifest => osgiBundleTask(super.localClasspath, calcPrivatePackage = false)
   }
 
-  def osgiBundleTask(localClasspath: Task[Seq[PathRef]]): Task[Jar] = T.task {
+  def osgiBundleTask(localClasspath: Task[Seq[PathRef]], calcPrivatePackage: Boolean): Task[Jar] = T.task {
     val log = T.ctx().log
 
     val currentRunningMillVersion = T.ctx().env.get("MILL_VERSION")
@@ -243,7 +243,7 @@ trait OsgiBundleModule extends JavaModule {
     val bndClasspath = (compileClasspath() ++ localClasspath()).toList.map(p => p.path.toIO).filter(_.exists()).asJava
     builder.setClasspath(bndClasspath)
 
-    if (osgiBuildMode == BuildMode.ReplaceJarTarget) {
+    if (calcPrivatePackage) {
       // We need to make sure we package all classfiles, event if they are not exported
       // Unfortunately, this doesn't work very well for to top-level (no-name) package
       // and also is known to include to much resource files (from dependencies) into the top-level package.
