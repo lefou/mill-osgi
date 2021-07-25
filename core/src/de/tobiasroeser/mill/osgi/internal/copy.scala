@@ -6,7 +6,7 @@ import java.nio.file.{CopyOption, Files, LinkOption, StandardCopyOption}
 import os.Path
 
 /** Copy of a newer version of os.copy, which already contains the mergeFolders option. */
-object copy {
+private[osgi] object copy {
   def apply(
       from: Path,
       to: Path,
