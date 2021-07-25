@@ -233,7 +233,7 @@ trait OsgiBundleModule extends JavaModule {
             }
           }
           embeddedJars().foreach { jar =>
-            os.copy.into(jar.path, dest)
+            internal.copy(jar.path, dest / jar.path.last)
           }
           explodedJars().foreach { jar =>
             internal.unpack.zip(jar.path, dest)
