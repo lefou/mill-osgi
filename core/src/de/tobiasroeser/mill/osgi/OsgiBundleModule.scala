@@ -222,6 +222,21 @@ trait OsgiBundleModule extends JavaModule {
     )
   }
 
+  override def resources: Sources = osgiBuildMode match {
+    case BuildMode.ReplaceJarTarget => super.resources
+    case BuildMode.CalculateManifest => T.sources {
+        super.resources() ++ {
+          val dest = T.dest
+          if (includeSources()) {
+            sources().map(_.path).filter(os.exists).map { path =>
+              internal.copy(path, dest / "OSGI-OPT" / "src", createFolders = true, mergeFolders = true)
+            }
+          }
+          Seq(PathRef(dest))
+        }
+      }
+  }
+
   /**
    * Build the OSGi Bundle.
    */
