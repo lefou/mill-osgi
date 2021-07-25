@@ -8,7 +8,7 @@ import scala.util.Try
 import aQute.bnd.osgi.{Builder, Constants, Jar}
 import de.tobiasroeser.mill.osgi.internal.BuildInfo
 import mill._
-import mill.define.{Target, Task}
+import mill.define.{Sources, Task}
 import mill.eval.PathRef
 import mill.modules.Jvm
 import mill.scalalib.{JavaModule, PublishModule}
@@ -220,6 +220,21 @@ trait OsgiBundleModule extends JavaModule {
         e._1 -> e._2.entrySet().asScala.map(entryAsStringPair).toMap
       )
     )
+  }
+
+  override def resources: Sources = osgiBuildMode match {
+    case BuildMode.ReplaceJarTarget => super.resources
+    case BuildMode.CalculateManifest => T.sources {
+        super.resources() ++ {
+          val dest = T.dest
+          if (includeSources()) {
+            sources().map(_.path).filter(os.exists).map { path =>
+              internal.copy(path, dest / "OSGI-OPT" / "src", createFolders = true, mergeFolders = true)
+            }
+          }
+          Seq(PathRef(dest))
+        }
+      }
   }
 
   /**

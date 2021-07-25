@@ -41,12 +41,12 @@ trait TestSupport {
     val ois = new JarInputStream(file.getInputStream)
     try {
       var entry: JarEntry = ois.getNextJarEntry()
-      var entries: Seq[String] = Seq()
+      var entries: List[String] = List()
       while (entry != null) {
-        if (!entry.isDirectory()) entries = entries ++ Seq(entry.getName())
+        if (!entry.isDirectory()) entries ::= entry.getName()
         entry = ois.getNextJarEntry()
       }
-      entries
+      entries.reverse
     } finally {
       ois.close()
     }

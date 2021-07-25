@@ -161,9 +161,9 @@ val testVersions: Seq[(String, Deps)] = millPlatforms.flatMap { case (_, d) => d
 object itest extends Cross[ItestCross](testVersions.map(_._1): _*) with TaskModule {
   override def defaultCommandName(): String = "test"
   def testCached: T[Seq[TestCase]] = itest(testVersions.map(_._1).head).testCached
-  def test(args: String*): Command[Seq[TestCase]] = itest(testVersions.map(_._1).head).test()
-
+  def test(args: String*): Command[Seq[TestCase]] = itest(testVersions.map(_._1).head).test(args: _*)
 }
+
 class ItestCross(millVersion: String) extends MillIntegrationTestModule {
   override def millSourcePath: Path = super.millSourcePath / os.up
   def deps = testVersions.toMap.apply(millVersion)
