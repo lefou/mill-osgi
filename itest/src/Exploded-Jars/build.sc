@@ -14,15 +14,18 @@ def verify() = T.command {
   } {
     Seq(
       "example/HelloWorld.class",
-      "OSGI-OPT/src/example/HelloWorld.scala"
+      "TopLevel.txt",
+      "sub/SubLevel.txt"
     ).foreach(p => assert(jarEntries.contains(p), s"Jar file ${jar} does not contain: ${p}. Content: ${jarEntries}"))
   }
 }
 
+object embedded extends JavaModule
+
 trait Template extends ScalaModule with OsgiBundleModule {
   override def millSourcePath: Path = super.millSourcePath / os.up / "hello"
   override def scalaVersion: T[String] = "2.13.6"
-  override def includeSources = true
+  override def explodedJars = Seq(embedded.jar())
 }
 
 object hello extends Template {

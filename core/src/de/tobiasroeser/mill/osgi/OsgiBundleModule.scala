@@ -232,6 +232,12 @@ trait OsgiBundleModule extends JavaModule {
               internal.copy(path, dest / "OSGI-OPT" / "src", createFolders = true, mergeFolders = true)
             }
           }
+          embeddedJars().foreach { jar =>
+            os.copy.into(jar.path, dest)
+          }
+          explodedJars().foreach { jar =>
+            internal.unpack.zip(jar.path, dest)
+          }
           Seq(PathRef(dest))
         }
       }
