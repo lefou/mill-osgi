@@ -2,7 +2,7 @@
 import $ivy.`de.tototec::de.tobiasroeser.mill.vcs.version_mill0.9:0.1.1`
 import mill.define.{Command, Task, TaskModule}
 // Run integration tests with mill
-import $ivy.`de.tototec::de.tobiasroeser.mill.integrationtest_mill0.9:0.4.1`
+import $ivy.`de.tototec::de.tobiasroeser.mill.integrationtest_mill0.9:0.4.1-15-e48bb3`
 // Generate converage reports
 import $ivy.`com.lihaoyi::mill-contrib-scoverage:$MILL_VERSION`
 
@@ -169,6 +169,10 @@ class ItestCross(millVersion: String) extends MillIntegrationTestModule {
   def deps = testVersions.toMap.apply(millVersion)
   override def millTestVersion = T { millVersion }
   override def pluginsUnderTest = Seq(core(deps.millPlatform), testsupport(deps.millPlatform))
+  override def prefetchIvyDeps = Agg(
+    ivy"com.typesafe.akka:akka-http-core_2.12:10.1.11"
+  )
+
   override def pluginUnderTestDetails: Task.Sequence[(PathRef, (PathRef, (PathRef, (PathRef, (PathRef, Artifact)))))] =
     T.traverse(pluginsUnderTest) { p =>
       val jar = p match {
