@@ -30,9 +30,14 @@ jobs:
       - run: .\millw.bat -i __.publishLocal %GITHUB_WORKSPACE%/testRepo
         if: matrix.os == 'windows-latest'
 
-      - run: ./millw -i -k __.testCached
+      - run: ./millw -i -k contrib._.prepareOffline
         if: matrix.os != 'windows-latest'
-      - run: ./millw.bat -i -k __.testCached
+      - run: .\millw.bat -i contrib._.prepareOffline
+        if: matrix.os == 'windows-latest'
+
+      - run: ./millw -i -j 0 -k __.testCached
+        if: matrix.os != 'windows-latest'
+      - run: ./millw.bat -i -k 0 -k __.testCached
         if: matrix.os == 'windows-latest'
 
       - run: ./millw -i -j 0 -k __.scoverage.xmlReport
