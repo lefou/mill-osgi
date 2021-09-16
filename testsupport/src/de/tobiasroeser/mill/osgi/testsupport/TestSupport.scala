@@ -23,9 +23,10 @@ trait TestSupport {
 
   def checkSlices(manifest: Manifest, header: String, expectedSlices: Seq[String]) = {
     val value = manifest.getMainAttributes().getValue(header)
+    assert(value != null, s"""Expected header '${header}' was not found""")
     assert(
       expectedSlices.forall(s => value.containsSlice(s)),
-      s"""Expected '${header}' header with slices ${expectedSlices.mkString("'", "' and '", "'")}! But was '${value}'"""
+      s"""Expected header '${header}' with slices ${expectedSlices.mkString("'", "' and '", "'")}! But was '${value}'"""
     )
   }
 
@@ -33,8 +34,13 @@ trait TestSupport {
     val value = manifest.getMainAttributes().getValue(header)
     assert(
       expectedValue == value,
-      s"""Expected '${header}' header with value '${expectedValue}'! But was '${value}'"""
+      s"""Expected header '${header}' with value '${expectedValue}'! But was '${value}'"""
     )
+  }
+
+  def checkUndefined(manifest: Manifest, header: String) = {
+    assert(manifest.getMainAttributes().containsKey(header) == false,
+      s"""Expected header '${header}' to be undefined, but found value '${manifest.getMainAttributes().getValue(header)}'""")
   }
 
   def jarFileEntries(file: os.Path): Seq[String] = {
@@ -52,13 +58,13 @@ trait TestSupport {
     }
   }
 
-  def assert(condition: Boolean, hint: => String): Unit = {
+  @inline def assert(condition: Boolean, hint: => String): Unit = {
     if (!condition) {
       throw new AssertionError(hint)
     }
   }
 
-  def assert(check: String, condition: Boolean, hint: => String): Unit = {
+  @inline def assert(check: String, condition: Boolean, hint: => String): Unit = {
     if(condition) println(s"Checked: ${check}")
     else println(s"FAILED: ${check}")
     assert(condition, hint)
