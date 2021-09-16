@@ -32,12 +32,12 @@ jobs:
 
       - run: ./millw -i -k itest._.prepareOffline
         if: matrix.os != 'windows-latest'
-      - run: .\millw.bat -i itest._.prepareOffline
+      - run: .\millw.bat -i -k itest._.prepareOffline
         if: matrix.os == 'windows-latest'
 
       - run: ./millw -i -j 0 -k __.testCached
         if: matrix.os != 'windows-latest'
-      - run: ./millw.bat -i -k 0 -k __.testCached
+      - run: ./millw.bat -i -j 0 -k __.testCached
         if: matrix.os == 'windows-latest'
 
       - run: ./millw -i -j 0 -k __.scoverage.xmlReport
