@@ -35,9 +35,9 @@ jobs:
       - run: .\millw.bat -i -k itest._.prepareOffline
         if: matrix.os == 'windows-latest'
 
-      - run: ./millw -i -j 0 -k __.testCached
+      - run: ./millw -i -k __.testCached
         if: matrix.os != 'windows-latest'
-      - run: ./millw.bat -i -j 0 -k __.testCached
+      - run: ./millw.bat -i -k __.testCached
         if: matrix.os == 'windows-latest'
 
       - run: ./millw -i -j 0 -k __.scoverage.xmlReport
