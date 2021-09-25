@@ -3,40 +3,40 @@ package de.tobiasroeser.mill.osgi
 import java.util.Properties
 
 case class OsgiHeaders(
-  `Bundle-ActivationPolicy`: Option[String] = None,
-  `Bundle-Activator`: Option[String] = None,
-  `Bundle-Classpath`: Seq[String] = Seq.empty,
-  `Bundle-Description`: Option[String] = None,
-  `Bundle-ContactAddress`: Option[String] = None,
-  `Bundle-Copyright`: Option[String] = None,
-  `Bundle-DocURL`: Option[String] = None,
-  `Bundle-Icon`: Option[String] = None,
-  `Bundle-License`: Seq[String] = Seq.empty,
-  `Bundle-Localization`: Option[String] = None,
-  `Bundle-ManifestVersion`: Option[String] = None,
-  `Bundle-Name`: Option[String] = None,
-  `Bundle-NativeCode`: Option[String] = None,
-  `Bundle-RequiredExecutionEnvironment`: Seq[String] = Seq.empty,
-  `Bundle-SymbolicName`: String,
-  //  `Bundle-UpdateLocation`: Option[String] = None,
-  `Bundle-Vendor`: Option[String] = None,
-  `Bundle-Version`: Option[String] = None,
-  `Bundle-Contributors`: Option[String] = None,
-  `Bundle-SCM`: Option[String] = None,
-  `DynamicImport-Package`: Seq[String] = Seq.empty,
-  `Export-Package`: Seq[String] = Seq.empty,
-  `Export-Service`: Seq[String] = Seq.empty,
-  `Fragment-Host`: Option[String] = None,
-  `Import-Package`: Seq[String] = Seq.empty,
-  `Import-Service`: Seq[String] = Seq.empty,
-  `Provide-Capability`: Option[String] = None,
-  `Require-Bundle`: Seq[String] = Seq.empty,
-  `Require-Capability`: Option[String] = None,
-  `Service-Component`: Option[String] = None,
-  `Private-Package`: Seq[String] = Seq.empty,
-  `Ignore-Package`: Seq[String] = Seq.empty,
-  `Include-Resource`: Seq[String] = Seq.empty,
-  `Conditional-Package`: Seq[String] = Seq.empty
+    `Bundle-ActivationPolicy`: Option[String] = None,
+    `Bundle-Activator`: Option[String] = None,
+    `Bundle-Classpath`: Seq[String] = Seq.empty,
+    `Bundle-Description`: Option[String] = None,
+    `Bundle-ContactAddress`: Option[String] = None,
+    `Bundle-Copyright`: Option[String] = None,
+    `Bundle-DocURL`: Option[String] = None,
+    `Bundle-Icon`: Option[String] = None,
+    `Bundle-License`: Seq[String] = Seq.empty,
+    `Bundle-Localization`: Option[String] = None,
+    `Bundle-ManifestVersion`: Option[String] = None,
+    `Bundle-Name`: Option[String] = None,
+    `Bundle-NativeCode`: Option[String] = None,
+    `Bundle-RequiredExecutionEnvironment`: Seq[String] = Seq.empty,
+    `Bundle-SymbolicName`: String,
+    //  `Bundle-UpdateLocation`: Option[String] = None,
+    `Bundle-Vendor`: Option[String] = None,
+    `Bundle-Version`: Option[String] = None,
+    `Bundle-Contributors`: Option[String] = None,
+    `Bundle-SCM`: Option[String] = None,
+    `DynamicImport-Package`: Seq[String] = Seq.empty,
+    `Export-Package`: Seq[String] = Seq.empty,
+    `Export-Service`: Seq[String] = Seq.empty,
+    `Fragment-Host`: Option[String] = None,
+    `Import-Package`: Seq[String] = Seq.empty,
+    `Import-Service`: Seq[String] = Seq.empty,
+    `Provide-Capability`: Option[String] = None,
+    `Require-Bundle`: Seq[String] = Seq.empty,
+    `Require-Capability`: Option[String] = None,
+    `Service-Component`: Option[String] = None,
+    `Private-Package`: Seq[String] = Seq.empty,
+    `Ignore-Package`: Seq[String] = Seq.empty,
+    `Include-Resource`: Seq[String] = Seq.empty,
+    `Conditional-Package`: Seq[String] = Seq.empty
 ) {
 
   def toProperties: Properties = {
@@ -47,7 +47,9 @@ case class OsgiHeaders(
       case e: String => props.put(header, e)
       case Some(e: String) => props.put(header, e)
       case es: Seq[_] => props.put(header, es.map(_.toString()).mkString(","))
-      case e => throw new UnsupportedOperationException(s"Unsupported entry type [${e.getClass()}] for manifest header [${header}]")
+      case e => throw new UnsupportedOperationException(
+          s"Unsupported entry type [${e.getClass()}] for manifest header [${header}]"
+        )
     }
 
     addProp("Bundle-ActivationPolicy", `Bundle-ActivationPolicy`)

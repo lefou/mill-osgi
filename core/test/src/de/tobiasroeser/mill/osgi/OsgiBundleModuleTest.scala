@@ -14,11 +14,11 @@ class OsgiBundleModuleTest extends AnyFreeSpec {
       "a-b.c" -> "d.e" -> "a-b.c.d.e",
       "a.b" -> "a.b.c" -> "a.b.c"
     ).foreach {
-        case (pair, expected) =>
-          s"${pair} should result in ${expected}" in {
-            assert((OsgiBundleModule.calcBundleSymbolicName _).tupled(pair) === expected)
-          }
-      }
+      case (pair, expected) =>
+        s"${pair} should result in ${expected}" in {
+          assert((OsgiBundleModule.calcBundleSymbolicName _).tupled(pair) === expected)
+        }
+    }
 
   }
 
@@ -34,11 +34,11 @@ class OsgiBundleModuleTest extends AnyFreeSpec {
       ("0.3.6", Some("1.0.0"), true, "Higher runtime major version"),
       ("1.3.6", Some("0.9.9"), false, "Lower runtime major version")
     ).foreach {
-        case (buildVersion, runVersion, expected, testName) =>
-          s"${testName} is ${if(expected) "" else "not "}ok [buildVersion: ${buildVersion}, runVersion: ${runVersion}]" in {
-            assert(OsgiBundleModule.checkMillVersion(buildVersion, runVersion) === expected)
-          }
-      }
+      case (buildVersion, runVersion, expected, testName) =>
+        s"${testName} is ${if (expected) "" else "not "}ok [buildVersion: ${buildVersion}, runVersion: ${runVersion}]" in {
+          assert(OsgiBundleModule.checkMillVersion(buildVersion, runVersion) === expected)
+        }
+    }
 
   }
 }
