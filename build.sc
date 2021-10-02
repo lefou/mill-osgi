@@ -120,13 +120,13 @@ class Core(override val millPlatform: String) extends MillOsgiModule with Scover
     val dest = T.dest
     val infoClass =
       s"""// Generated with mill from build.sc
-        |package de.tobiasroeser.mill.osgi.internal
-        |
-        |object BuildInfo {
-        |  def millOsgiVerison = "${publishVersion()}"
-        |  def millVersion = "${deps.millVersion}"
-        |}
-        |""".stripMargin
+         |package de.tobiasroeser.mill.osgi.internal
+         |
+         |object BuildInfo {
+         |  def millOsgiVerison = "${publishVersion()}"
+         |  def millVersion = "${deps.millVersion}"
+         |}
+         |""".stripMargin
     os.write(dest / "BuildInfo.scala", infoClass)
     super.generatedSources() ++ Seq(PathRef(dest))
   }
@@ -187,7 +187,7 @@ class ItestCross(millVersion: String) extends MillIntegrationTestModule {
     os.write(
       T.dest / "shared.sc",
       s"""import $$ivy.`${scov.module.organization.value}::${scov.module.name.value}:${scov.version}`
-        |""".stripMargin
+         |""".stripMargin
     )
     PathRef(T.dest)
   }
