@@ -12,7 +12,7 @@ def verify() = T.command {
 
   for {
     (originalJar, jar) <- Seq(
-      (akkaHttpCore.originalJar(), akkaHttpCore.jar()),
+      (akkaHttpCore.originalJar(), akkaHttpCore.jar())
       // (akkaHttpCoreCalcManifest.originalJar(), akkaHttpCoreCalcManifest.jar())
     )
   } {
