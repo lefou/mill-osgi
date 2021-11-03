@@ -28,7 +28,7 @@ trait Deps {
   def millPlatform: String
   def scalaVersion: String
   def millTestVersions: Seq[String]
-  val scoverageVersion = "1.4.9"
+  val scoverageVersion = "1.4.10"
 
   val bndlib = ivy"biz.aQute.bnd:biz.aQute.bndlib:6.0.0"
   val logbackClassic = ivy"ch.qos.logback:logback-classic:1.1.3"
