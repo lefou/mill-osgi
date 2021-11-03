@@ -44,7 +44,7 @@ trait Deps {
 object Deps_0_9 extends Deps {
   override val millVersion = "0.9.3"
   override def millPlatform: String = "0.9"
-  override val scalaVersion = "2.13.6"
+  override val scalaVersion = "2.13.7"
   override val millTestVersions = Seq(
     "0.9.8",
     "0.9.7",
@@ -57,7 +57,7 @@ object Deps_0_9 extends Deps {
 object Deps_0_7 extends Deps {
   override val millVersion = "0.7.0"
   override def millPlatform = "0.7"
-  override val scalaVersion = "2.13.6"
+  override val scalaVersion = "2.13.7"
   override val millTestVersions = Seq(
     "0.8.0",
     "0.7.4",
