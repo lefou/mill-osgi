@@ -1,10 +1,11 @@
 // mill plugins
-import $ivy.`de.tototec::de.tobiasroeser.mill.vcs.version_mill0.9:0.1.1`
-import mill.define.{Command, Task, TaskModule}
+import $ivy.`de.tototec::de.tobiasroeser.mill.vcs.version::0.1.2`
 // Run integration tests with mill
-import $ivy.`de.tototec::de.tobiasroeser.mill.integrationtest_mill0.9:0.4.1-15-e48bb3`
+import $ivy.`de.tototec::de.tobiasroeser.mill.integrationtest::0.4.1-26-70d7c9`
 // Generate converage reports
-import $ivy.`com.lihaoyi::mill-contrib-scoverage:$MILL_VERSION`
+import $ivy.`com.lihaoyi::mill-contrib-scoverage:`
+
+import mill.define.{Command, Task, TaskModule}
 
 import java.nio.file.attribute.PosixFilePermission
 
@@ -41,42 +42,29 @@ trait Deps {
   val slf4j = ivy"org.slf4j:slf4j-api:1.7.32"
 }
 
+object Deps_0_10 extends Deps {
+  override val millVersion = "0.10.0-M4"
+  override def millPlatform: String = "0.10.0-M4"
+  override val scalaVersion = "2.13.7"
+  override val millTestVersions = Seq(millVersion)
+}
 object Deps_0_9 extends Deps {
   override val millVersion = "0.9.3"
   override def millPlatform: String = "0.9"
   override val scalaVersion = "2.13.7"
-  override val millTestVersions = Seq(
-    "0.9.8",
-    "0.9.7",
-    "0.9.6",
-    "0.9.5",
-    "0.9.4",
-    "0.9.3"
-  )
+  override val millTestVersions = Seq("0.9.10", "0.9.9", "0.9.8", "0.9.7", "0.9.6", "0.9.5", "0.9.4", millVersion)
 }
 object Deps_0_7 extends Deps {
   override val millVersion = "0.7.0"
   override def millPlatform = "0.7"
   override val scalaVersion = "2.13.7"
-  override val millTestVersions = Seq(
-    "0.8.0",
-    "0.7.4",
-    "0.7.3",
-    "0.7.2",
-    "0.7.1",
-    "0.7.0"
-  )
+  override val millTestVersions = Seq("0.8.0", "0.7.4", "0.7.3", "0.7.2", "0.7.1", millVersion)
 }
 object Deps_0_6 extends Deps {
   override val millVersion = "0.6.0"
   override def millPlatform = "0.6"
   override val scalaVersion = "2.12.15"
-  override val millTestVersions = Seq(
-    "0.6.3",
-    "0.6.2",
-    "0.6.1",
-    "0.6.0"
-  )
+  override val millTestVersions = Seq("0.6.3", "0.6.2", "0.6.1", millVersion)
 }
 
 /** Cross build versions */
