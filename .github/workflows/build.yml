@@ -62,6 +62,10 @@ jobs:
     needs: build
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     runs-on: ubuntu-latest
+    # only run one publish job for the same sha at the same time
+    # e.g. when a main-branch push is also tagged
+    concurrency: publish-${{ github.sha }}
+
     steps:
       - uses: actions/checkout@v2
         with:

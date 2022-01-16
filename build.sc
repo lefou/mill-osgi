@@ -1,5 +1,5 @@
 // mill plugins
-import $ivy.`de.tototec::de.tobiasroeser.mill.vcs.version::0.1.2`
+import $ivy.`de.tototec::de.tobiasroeser.mill.vcs.version::0.1.3`
 // Run integration tests with mill
 import $ivy.`de.tototec::de.tobiasroeser.mill.integrationtest::0.4.1-26-70d7c9`
 // Generate converage reports
@@ -29,7 +29,7 @@ trait Deps {
   def millPlatform: String
   def scalaVersion: String
   def millTestVersions: Seq[String]
-  val scoverageVersion = "1.4.10"
+  val scoverageVersion = "1.4.11"
 
   val bndlib = ivy"biz.aQute.bnd:biz.aQute.bndlib:6.0.0"
   val logbackClassic = ivy"ch.qos.logback:logback-classic:1.1.3"
@@ -45,7 +45,7 @@ trait Deps {
 object Deps_0_10 extends Deps {
   override val millVersion = "0.10.0-M4" // scala-steward:off
   override def millPlatform = "0.10.0-M4"
-  override val scalaVersion = "2.13.7"
+  override val scalaVersion = "2.13.8"
   // keep in sync with .github/workflows/build.yml
   override val millTestVersions = Seq(millVersion)
 }
