@@ -16,7 +16,7 @@ def verify() = T.command {
   } {
     withManifest(jar.path) { manifest =>
       checkExact(manifest, "Manifest-Version", "1.0")
-      checkExact(manifest, "Bundle-SymbolicName", "hello_2.12")
+      checkExact(manifest, "Bundle-SymbolicName", "hello_2.13")
       checkExact(manifest, "Bundle-Version", "0.0.0")
       mode match {
         case OsgiBundleModule.BuildMode.ReplaceJarTarget =>
