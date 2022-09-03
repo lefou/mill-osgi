@@ -31,7 +31,7 @@ trait Deps {
   def millTestVersions: Seq[String]
   val scoverageVersion = "2.0.2"
 
-  val bndlib = ivy"biz.aQute.bnd:biz.aQute.bndlib:6.1.0"
+  val bndlib = ivy"biz.aQute.bnd:biz.aQute.bndlib:6.3.1"
   val logbackClassic = ivy"ch.qos.logback:logback-classic:1.1.3"
   def millMain = ivy"com.lihaoyi::mill-main:${millVersion}"
   def millScalalib = ivy"com.lihaoyi::mill-scalalib:${millVersion}"
@@ -54,7 +54,8 @@ object Deps_0_9 extends Deps {
   override def millPlatform = "0.9"
   override val scalaVersion = "2.13.7"
   // keep in sync with .github/workflows/build.yml
-  override val millTestVersions = Seq("0.9.12", "0.9.11", "0.9.10", "0.9.9", "0.9.8", "0.9.7", "0.9.6", "0.9.5", "0.9.4", millVersion)
+  override val millTestVersions =
+    Seq("0.9.12", "0.9.11", "0.9.10", "0.9.9", "0.9.8", "0.9.7", "0.9.6", "0.9.5", "0.9.4", millVersion)
 }
 object Deps_0_7 extends Deps {
   override val millVersion = "0.7.0" // scala-steward:off
