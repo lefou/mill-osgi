@@ -1,5 +1,5 @@
 // mill plugins
-import $ivy.`de.tototec::de.tobiasroeser.mill.vcs.version::0.2.0`
+import $ivy.`de.tototec::de.tobiasroeser.mill.vcs.version::0.3.0`
 // Run integration tests with mill
 import $ivy.`de.tototec::de.tobiasroeser.mill.integrationtest::0.6.1`
 // Generate converage reports
@@ -29,7 +29,7 @@ trait Deps {
   def millPlatform: String
   def scalaVersion: String
   def millTestVersions: Seq[String]
-  val scoverageVersion = "2.0.3"
+  val scoverageVersion = "2.0.7"
 
   val bndlib = ivy"biz.aQute.bnd:biz.aQute.bndlib:6.3.1"
   val logbackClassic = ivy"ch.qos.logback:logback-classic:1.1.3"
@@ -45,28 +45,28 @@ trait Deps {
 object Deps_0_10 extends Deps {
   override val millVersion = "0.10.0" // scala-steward:off
   override def millPlatform = "0.10"
-  override val scalaVersion = "2.13.8"
+  override val scalaVersion = "2.13.10"
   // keep in sync with .github/workflows/build.yml
   override val millTestVersions = Seq("0.10.7", millVersion)
 }
 object Deps_0_9 extends Deps {
   override val millVersion = "0.9.3" // scala-steward:off
   override def millPlatform = "0.9"
-  override val scalaVersion = "2.13.7"
+  override val scalaVersion = "2.13.10"
   // keep in sync with .github/workflows/build.yml
   override val millTestVersions = Seq("0.9.12", millVersion)
 }
 object Deps_0_7 extends Deps {
   override val millVersion = "0.7.0" // scala-steward:off
   override def millPlatform = "0.7"
-  override val scalaVersion = "2.13.7"
+  override val scalaVersion = "2.13.10"
   // keep in sync with .github/workflows/build.yml
   override val millTestVersions = Seq("0.8.0", "0.7.4", millVersion)
 }
 object Deps_0_6 extends Deps {
   override val millVersion = "0.6.0" // scala-steward:off
   override def millPlatform = "0.6"
-  override val scalaVersion = "2.12.16"
+  override val scalaVersion = "2.12.17"
   // keep in sync with .github/workflows/build.yml
   override val millTestVersions = Seq("0.6.3", millVersion)
 }
