@@ -6,10 +6,10 @@ import scala.collection.JavaConverters._
 import scala.util.Try
 
 import aQute.bnd.osgi.{Builder, Constants, Jar}
-import de.tobiasroeser.mill.osgi.internal.BuildInfo
+import de.tobiasroeser.mill.osgi.internal.{BuildInfo, copy => icopy, unpack => iunpack}
 import mill._
 import mill.define.{Sources, Task}
-import mill.eval.PathRef
+import mill.api.PathRef
 import mill.modules.Jvm
 import mill.scalalib.{JavaModule, PublishModule}
 import os.Path
@@ -229,14 +229,14 @@ trait OsgiBundleModule extends JavaModule {
           val dest = T.dest
           if (includeSources()) {
             sources().map(_.path).filter(os.exists).map { path =>
-              internal.copy(path, dest / "OSGI-OPT" / "src", createFolders = true, mergeFolders = true)
+              icopy(path, dest / "OSGI-OPT" / "src", createFolders = true, mergeFolders = true)
             }
           }
           embeddedJars().foreach { jar =>
-            internal.copy(jar.path, dest / jar.path.last)
+            icopy(jar.path, dest / jar.path.last)
           }
           explodedJars().foreach { jar =>
-            internal.unpack.zip(jar.path, dest)
+            iunpack.zip(jar.path, dest)
           }
           Seq(PathRef(dest))
         }

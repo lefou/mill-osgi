@@ -14,9 +14,10 @@ import de.tobiasroeser.mill.vcs.version._
 
 import mill.{Agg, PathRef, T}
 import mill.contrib.scoverage.ScoverageModule
-import mill.define.{Cross, Module, Target}
+import mill.define.{Cross, Module, Sources, Target}
 import mill.modules.Util
 import mill.scalalib._
+import mill.scalalib.api.ZincWorkerUtil
 import mill.scalalib.publish._
 
 import os.Path
@@ -29,7 +30,7 @@ trait Deps {
   def millPlatform: String
   def scalaVersion: String
   def millTestVersions: Seq[String]
-  val scoverageVersion = "2.0.7"
+  val scoverageVersion = "2.0.8"
 
   val bndlib = ivy"biz.aQute.bnd:biz.aQute.bndlib:6.4.0"
   val logbackClassic = ivy"ch.qos.logback:logback-classic:1.1.3"
@@ -42,6 +43,13 @@ trait Deps {
   val slf4j = ivy"org.slf4j:slf4j-api:1.7.36"
 }
 
+object Deps_0_11 extends Deps {
+  override val millVersion = "0.11.0-M4" // needs to be an exact milestone version
+  override def millPlatform = millVersion
+  override val scalaVersion = "2.13.10"
+  // keep in sync with .github/workflows/build.yml
+  override val millTestVersions = Seq(millVersion)
+}
 object Deps_0_10 extends Deps {
   override val millVersion = "0.10.0" // scala-steward:off
   override def millPlatform = "0.10"
@@ -72,7 +80,7 @@ object Deps_0_6 extends Deps {
 }
 
 /** Cross build versions */
-val millPlatforms = Seq(Deps_0_10, Deps_0_9, Deps_0_7, Deps_0_6).map(x => x.millPlatform -> x)
+val millPlatforms = Seq(Deps_0_11, Deps_0_10, Deps_0_9, Deps_0_7, Deps_0_6).map(x => x.millPlatform -> x)
 
 trait MillOsgiModule extends ScalaModule with PublishModule {
   def millPlatform: String
@@ -164,6 +172,11 @@ class ItestCross(millVersion: String) extends MillIntegrationTestModule {
   override def prefetchIvyDeps = Agg(
     ivy"com.typesafe.akka:akka-http-core_2.12:10.1.11"
   )
+  override def sources: Sources = T.sources {
+    super.sources() ++
+      ZincWorkerUtil.versionRanges(deps.millPlatform, millPlatforms.map(_._1))
+        .map(p => PathRef(millSourcePath / s"src-${p}"))
+  }
 
   override def pluginUnderTestDetails: Task.Sequence[(PathRef, (PathRef, (PathRef, (PathRef, (PathRef, Artifact)))))] =
     T.traverse(pluginsUnderTest) { p =>
