@@ -44,7 +44,7 @@ trait Deps {
 }
 
 object Deps_0_11 extends Deps {
-  override val millVersion = "0.11.0-M4" // needs to be an exact milestone version
+  override val millVersion = "0.11.0-M6" // needs to be an exact milestone version
   override def millPlatform = millVersion
   override val scalaVersion = "2.13.10"
   // keep in sync with .github/workflows/build.yml
@@ -55,7 +55,7 @@ object Deps_0_10 extends Deps {
   override def millPlatform = "0.10"
   override val scalaVersion = "2.13.10"
   // keep in sync with .github/workflows/build.yml
-  override val millTestVersions = Seq("0.10.7", millVersion)
+  override val millTestVersions = Seq("0.10.11", millVersion)
 }
 object Deps_0_9 extends Deps {
   override val millVersion = "0.9.3" // scala-steward:off
@@ -136,6 +136,8 @@ class Core(override val millPlatform: String) extends MillOsgiModule with Scover
   override def scoveragePluginDep = T {
     deps.scoveragePlugin
   }
+
+  override def skipIdea: Boolean = millPlatforms.head._1 != millPlatform
 
   object test extends ScoverageTests with TestModule.ScalaTest {
     override def ivyDeps = Agg(
