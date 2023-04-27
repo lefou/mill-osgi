@@ -44,8 +44,9 @@ trait Deps {
 }
 
 object Deps_0_11 extends Deps {
-  override val millVersion = "0.11.0-M7" // needs to be an exact milestone version
-  override def millPlatform = millVersion
+  // 0.11.0-M8 has issues to run on Windows
+  override val millVersion = "0.11.0-M8-2-f5e4e2" // needs to be an exact milestone version
+  override def millPlatform = "0.11.0-M8"
   override val scalaVersion = "2.13.10"
   // keep in sync with .github/workflows/build.yml
   override val millTestVersions = Seq(millVersion)
@@ -187,7 +188,10 @@ trait ItestCross extends MillIntegrationTestModule with Cross.Module[String] {
     val scov = deps.scoverageRuntime.dep
     os.write(
       T.dest / "shared.sc",
-      s"""import $$ivy.`${scov.module.organization.value}::${scov.module.name.value}:${scov.version}`
+      s"""// Load the plugin under test
+         |import $$file.plugins
+         |// Load scoverage runtime to get coverage results
+         |import $$ivy.`${scov.module.organization.value}::${scov.module.name.value}:${scov.version}`
          |""".stripMargin
     )
     PathRef(T.dest)

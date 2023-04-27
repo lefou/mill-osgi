@@ -1,5 +1,4 @@
-import $exec.plugins
-import $exec.shared
+import $file.shared
 import java.io.IOException
 import java.util.jar.Manifest
 import java.util.zip.ZipFile
