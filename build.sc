@@ -44,7 +44,7 @@ trait Deps {
 }
 
 object Deps_0_11 extends Deps {
-  override val millVersion = "0.11.0-M7" // needs to be an exact milestone version
+  override val millVersion = "0.11.0-M10" // needs to be an exact milestone version
   override def millPlatform = millVersion
   override val scalaVersion = "2.13.10"
   // keep in sync with .github/workflows/build.yml
