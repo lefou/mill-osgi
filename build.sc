@@ -32,7 +32,7 @@ trait Deps {
   def millTestVersions: Seq[String]
   val scoverageVersion = "2.0.10"
 
-  val bndlib = ivy"biz.aQute.bnd:biz.aQute.bndlib:6.4.0"
+  val bndlib = ivy"biz.aQute.bnd:biz.aQute.bndlib:6.4.1"
   val logbackClassic = ivy"ch.qos.logback:logback-classic:1.1.3"
   def millMain = ivy"com.lihaoyi::mill-main:${millVersion}"
   def millScalalib = ivy"com.lihaoyi::mill-scalalib:${millVersion}"
