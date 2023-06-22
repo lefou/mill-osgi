@@ -1,7 +1,7 @@
 // mill plugins
 import $ivy.`de.tototec::de.tobiasroeser.mill.vcs.version::0.4.0`
 // Run integration tests with mill
-import $ivy.`de.tototec::de.tobiasroeser.mill.integrationtest::0.7.0`
+import $ivy.`de.tototec::de.tobiasroeser.mill.integrationtest::0.7.1`
 // Generate converage reports
 import $ivy.`com.lihaoyi::mill-contrib-scoverage:`
 
@@ -15,14 +15,14 @@ import de.tobiasroeser.mill.vcs.version._
 import mill.{Agg, PathRef, T}
 import mill.contrib.scoverage.ScoverageModule
 import mill.define.{Cross, Module, Sources, Target}
-import mill.modules.Util
+import mill.util.Util
 import mill.scalalib._
 import mill.scalalib.api.ZincWorkerUtil
 import mill.scalalib.publish._
 
 import os.Path
 
-val baseDir = build.millSourcePath
+private def baseDir = build.millSourcePath
 
 trait Deps {
   // The mill API version used in the project/sources/dependencies, also default for integration tests
@@ -82,8 +82,8 @@ object Deps_0_6 extends Deps {
 /** Cross build versions */
 val millPlatforms = Seq(Deps_0_11, Deps_0_10, Deps_0_9, Deps_0_7, Deps_0_6).map(x => x.millPlatform -> x)
 
-trait MillOsgiModule extends ScalaModule with PublishModule {
-  def millPlatform: String
+trait MillOsgiModule extends ScalaModule with PublishModule with Cross.Module[String] {
+  def millPlatform: String = crossValue
   def deps: Deps = millPlatforms.toMap.apply(millPlatform)
   override def scalaVersion = T { deps.scalaVersion }
   override def ivyDeps = Agg(deps.scalaLibrary)
@@ -103,9 +103,8 @@ trait MillOsgiModule extends ScalaModule with PublishModule {
   }
 }
 
-object core extends Cross[Core](millPlatforms.map(_._1): _*)
-class Core(override val millPlatform: String) extends MillOsgiModule with ScoverageModule {
-  override def millSourcePath: Path = super.millSourcePath / os.up
+object core extends Cross[Core](millPlatforms.map(_._1))
+trait Core extends MillOsgiModule with ScoverageModule {
   override def artifactName = "de.tobiasroeser.mill.osgi"
   override def ivyDeps = super.ivyDeps() ++ Agg(
     deps.bndlib,
@@ -132,10 +131,6 @@ class Core(override val millPlatform: String) extends MillOsgiModule with Scover
   }
 
   override def scoverageVersion = deps.scoverageVersion
-  // we need to adapt to changed publishing policy - patch-level
-  override def scoveragePluginDep = T {
-    deps.scoveragePlugin
-  }
 
   override def skipIdea: Boolean = millPlatforms.head._1 != millPlatform
 
@@ -147,9 +142,8 @@ class Core(override val millPlatform: String) extends MillOsgiModule with Scover
 
 }
 
-object testsupport extends Cross[TestSupport](millPlatforms.map(_._1): _*)
-class TestSupport(override val millPlatform: String) extends MillOsgiModule {
-  override def millSourcePath: Path = super.millSourcePath / os.up
+object testsupport extends Cross[TestSupport](millPlatforms.map(_._1))
+trait TestSupport extends MillOsgiModule {
   override def compileIvyDeps = Agg(
     deps.millMain,
     deps.millScalalib
@@ -160,14 +154,14 @@ class TestSupport(override val millPlatform: String) extends MillOsgiModule {
 
 val testVersions: Seq[(String, Deps)] = millPlatforms.flatMap { case (_, d) => d.millTestVersions.map(_ -> d) }
 
-object itest extends Cross[ItestCross](testVersions.map(_._1): _*) with TaskModule {
+object itest extends Cross[ItestCross](testVersions.map(_._1)) with TaskModule {
   override def defaultCommandName(): String = "test"
   def testCached: T[Seq[TestCase]] = itest(testVersions.map(_._1).head).testCached
   def test(args: String*): Command[Seq[TestCase]] = itest(testVersions.map(_._1).head).test(args: _*)
 }
 
-class ItestCross(millVersion: String) extends MillIntegrationTestModule {
-  override def millSourcePath: Path = super.millSourcePath / os.up
+trait ItestCross extends MillIntegrationTestModule with Cross.Module[String] {
+  def millVersion = crossValue
   def deps = testVersions.toMap.apply(millVersion)
   override def millTestVersion = T { millVersion }
   override def pluginsUnderTest = Seq(core(deps.millPlatform), testsupport(deps.millPlatform))
@@ -180,7 +174,7 @@ class ItestCross(millVersion: String) extends MillIntegrationTestModule {
         .map(p => PathRef(millSourcePath / s"src-${p}"))
   }
 
-  override def pluginUnderTestDetails: Task.Sequence[(PathRef, (PathRef, (PathRef, (PathRef, (PathRef, Artifact)))))] =
+  override def pluginUnderTestDetails: Task[Seq[(PathRef, (PathRef, (PathRef, (PathRef, (PathRef, Artifact)))))]] =
     T.traverse(pluginsUnderTest) { p =>
       val jar = p match {
         case p: ScoverageModule => p.scoverage.jar
