@@ -46,28 +46,28 @@ trait Deps {
 object Deps_0_11 extends Deps {
   override val millVersion = "0.11.0-M7" // needs to be an exact milestone version
   override def millPlatform = millVersion
-  override val scalaVersion = "2.13.10"
+  override val scalaVersion = "2.13.11"
   // keep in sync with .github/workflows/build.yml
   override val millTestVersions = Seq(millVersion)
 }
 object Deps_0_10 extends Deps {
   override val millVersion = "0.10.0" // scala-steward:off
   override def millPlatform = "0.10"
-  override val scalaVersion = "2.13.10"
+  override val scalaVersion = "2.13.11"
   // keep in sync with .github/workflows/build.yml
   override val millTestVersions = Seq("0.10.11", millVersion)
 }
 object Deps_0_9 extends Deps {
   override val millVersion = "0.9.3" // scala-steward:off
   override def millPlatform = "0.9"
-  override val scalaVersion = "2.13.10"
+  override val scalaVersion = "2.13.11"
   // keep in sync with .github/workflows/build.yml
   override val millTestVersions = Seq("0.9.12", millVersion)
 }
 object Deps_0_7 extends Deps {
   override val millVersion = "0.7.0" // scala-steward:off
   override def millPlatform = "0.7"
-  override val scalaVersion = "2.13.10"
+  override val scalaVersion = "2.13.11"
   // keep in sync with .github/workflows/build.yml
   override val millTestVersions = Seq("0.8.0", "0.7.4", millVersion)
 }
