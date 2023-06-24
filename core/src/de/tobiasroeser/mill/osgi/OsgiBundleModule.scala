@@ -14,7 +14,7 @@ import mill.modules.Jvm
 import mill.scalalib.{JavaModule, PublishModule}
 import os.Path
 
-trait OsgiBundleModule extends JavaModule {
+trait OsgiBundleModule extends OsgiBundleModulePlatform {
 
   import OsgiBundleModule._
 

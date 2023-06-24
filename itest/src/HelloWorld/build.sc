@@ -1,5 +1,4 @@
-import $exec.plugins
-import $exec.shared
+import $file.shared
 import mill._
 import mill.scalalib._
 import mill.scalalib.publish._
