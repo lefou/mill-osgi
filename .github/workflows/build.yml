@@ -23,8 +23,9 @@ jobs:
         targets:
           - "__.publishLocal testRepo"
           - "core.__.test"
+          - "itest[0.11.1].test"
           - "itest[0.11.0].test"
-          - "itest[0.10.11].test"
+          - "itest[0.10.12].test"
           - "itest[0.10.0].test"
           - "itest[0.9.12].test"
           - "itest[0.9.3].test"
