@@ -44,7 +44,6 @@ trait Deps {
 }
 
 object Deps_0_11 extends Deps {
-  // 0.11.0-M8 has issues to run on Windows
   override val millVersion = "0.11.0" // scala-steward:off
   override def millPlatform = "0.11"
   // keep in sync with .github/workflows/build.yml
