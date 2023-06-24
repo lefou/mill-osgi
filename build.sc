@@ -86,7 +86,7 @@ trait MillOsgiModule extends ScalaModule with PublishModule with Cross.Module[St
   override def artifactSuffix = s"_mill${deps.millPlatform}_${artifactScalaVersion()}"
   def publishVersion = VcsVersion.vcsState().format()
   override def javacOptions = Seq("-source", "1.8", "-target", "1.8", "-encoding", "UTF-8")
-  override def scalacOptions = Seq("-target:jvm-1.8", "-encoding", "UTF-8")
+  override def scalacOptions = Seq("-target:jvm-1.8", "-encoding", "UTF-8", "-deprecation", "-Xsource:3")
   override def pomSettings = T {
     PomSettings(
       description = "Mill module adding OSGi bundle support",
@@ -167,7 +167,7 @@ trait ItestCross extends MillIntegrationTestModule with Cross.Module[String] {
   override def prefetchIvyDeps = Agg(
     ivy"com.typesafe.akka:akka-http-core_2.12:10.1.11"
   )
-  override def sources: Sources = T.sources {
+  override def sources = T.sources {
     super.sources() ++
       ZincWorkerUtil.versionRanges(deps.millPlatform, millPlatforms.map(_._1))
         .map(p => PathRef(millSourcePath / s"src-${p}"))

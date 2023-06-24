@@ -1,8 +1,8 @@
 = mill-osgi - Build OSGi Bundles with mill
 :mill-min-version: 0.6.0
-:mill-osgi-version: 0.4.0
-:mill-platform: 0.10
-:example-scala-version: 2.13.8
+:mill-osgi-version: 0.5.0
+:mill-platform: 0.11
+:example-scala-version: 2.13.11
 :projectHome: https://github.com/lefou/mill-osgi
 :toc:
 :toc-placement: preamble
@@ -192,7 +192,8 @@ The following table shows a matrix of compatible mill and mill-osgi versions.
 [options="header"]
 |===
 | mill-osgi | mill
-| 0.4.0 | 0.6.0 -0.10.x
+| 0.5.0 | 0.6.0 - 0.11.x
+| 0.4.0 | 0.6.0 - 0.10.x
 | 0.3.2 | 0.6.0 - 0.9.3
 | 0.3.1 | 0.6.0 - 0.8.0
 | 0.3.0 | 0.6.0 - 0.8.0
@@ -213,17 +214,6 @@ The following table shows a matrix of compatible mill and mill-osgi versions.
 You can download binary releases from https://search.maven.org/search?q=g:de.tototec[Maven Central].
 
 Please make sure to use the correct _mill platform suffix_ matching your used mill version.
-
-.Mill Platform suffix
-[options="header"]
-|===
-| mill version  | mill platform | suffix | example
-| 0.10.x        | 0.10 | `_mill0.10` | ```$ivy.`de.tototec::de.tobiasroeser.mill.osgi::{mill-osgi-version}````
-| 0.9.3 -       | 0.9 | `_mill0.9` | ```$ivy.`de.tototec::de.tobiasroeser.mill.osgi_mill0.9:{mill-osgi-version}````
-| 0.7.0 - 0.8.0 | 0.7 | `_mill0.7` | ```$ivy.`de.tototec::de.tobiasroeser.mill.osgi_mill0.7:{mill-osgi-version}````
-| 0.6.0 - 0.6.3 | 0.6 | `_mill0.6` | ```$ivy.`de.tototec::de.tobiasroeser.mill.osgi_mill0.6:{mill-osgi-version}````
-|===
-
 
 == License
 
@@ -251,6 +241,11 @@ I also accept {projectHome}/pulls[pull requests].
 
 
 == Changelog
+
+=== mill-osgi 0.5.0 - 2023-06-24
+
+* Added support for Mill 0.11 API
+* Various dependency updates
 
 === mill-osgi 0.4.0 - 2022-01-16
 
