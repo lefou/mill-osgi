@@ -155,12 +155,7 @@ trait TestSupport extends MillOsgiModule {
 
 val testVersions: Seq[(String, Deps)] = millPlatforms.flatMap { case (_, d) => d.millTestVersions.map(_ -> d) }
 
-object itest extends Cross[ItestCross](testVersions.map(_._1)) with TaskModule {
-  override def defaultCommandName(): String = "test"
-  def testCached: T[Seq[TestCase]] = itest(testVersions.map(_._1).head).testCached
-  def test(args: String*): Command[Seq[TestCase]] = itest(testVersions.map(_._1).head).test(args: _*)
-}
-
+object itest extends Cross[ItestCross](testVersions.map(_._1))
 trait ItestCross extends MillIntegrationTestModule with Cross.Module[String] {
   def millVersion = crossValue
   def deps = testVersions.toMap.apply(millVersion)
