@@ -28,7 +28,7 @@ trait Deps {
   // The mill API version used in the project/sources/dependencies, also default for integration tests
   def millVersion: String
   def millPlatform: String
-  def scalaVersion: String
+  def scalaVersion: String = "2.13.11"
   def millTestVersions: Seq[String]
   val scoverageVersion = "2.0.10"
 
@@ -44,30 +44,26 @@ trait Deps {
 }
 
 object Deps_0_11 extends Deps {
-  override val millVersion = "0.11.0-M7" // needs to be an exact milestone version
-  override def millPlatform = millVersion
-  override val scalaVersion = "2.13.10"
+  override val millVersion = "0.11.0" // scala-steward:off
+  override def millPlatform = "0.11"
   // keep in sync with .github/workflows/build.yml
-  override val millTestVersions = Seq(millVersion)
+  override val millTestVersions = Seq("0.11.1", millVersion)
 }
 object Deps_0_10 extends Deps {
   override val millVersion = "0.10.0" // scala-steward:off
   override def millPlatform = "0.10"
-  override val scalaVersion = "2.13.10"
   // keep in sync with .github/workflows/build.yml
-  override val millTestVersions = Seq("0.10.11", millVersion)
+  override val millTestVersions = Seq("0.10.12", millVersion)
 }
 object Deps_0_9 extends Deps {
   override val millVersion = "0.9.3" // scala-steward:off
   override def millPlatform = "0.9"
-  override val scalaVersion = "2.13.10"
   // keep in sync with .github/workflows/build.yml
   override val millTestVersions = Seq("0.9.12", millVersion)
 }
 object Deps_0_7 extends Deps {
   override val millVersion = "0.7.0" // scala-steward:off
   override def millPlatform = "0.7"
-  override val scalaVersion = "2.13.10"
   // keep in sync with .github/workflows/build.yml
   override val millTestVersions = Seq("0.8.0", "0.7.4", millVersion)
 }
@@ -90,7 +86,7 @@ trait MillOsgiModule extends ScalaModule with PublishModule with Cross.Module[St
   override def artifactSuffix = s"_mill${deps.millPlatform}_${artifactScalaVersion()}"
   def publishVersion = VcsVersion.vcsState().format()
   override def javacOptions = Seq("-source", "1.8", "-target", "1.8", "-encoding", "UTF-8")
-  override def scalacOptions = Seq("-target:jvm-1.8", "-encoding", "UTF-8")
+  override def scalacOptions = Seq("-target:jvm-1.8", "-encoding", "UTF-8", "-deprecation", "-Xsource:3")
   override def pomSettings = T {
     PomSettings(
       description = "Mill module adding OSGi bundle support",
@@ -100,6 +96,14 @@ trait MillOsgiModule extends ScalaModule with PublishModule with Cross.Module[St
       versionControl = VersionControl.github("lefou", "mill-osgi"),
       developers = Seq(Developer("lefou", "Tobias Roeser", "https.//github.com/lefou"))
     )
+  }
+  override def sources = T.sources {
+    super.sources() ++
+      (
+        ZincWorkerUtil.matchingVersions(deps.millPlatform) ++
+        ZincWorkerUtil.versionRanges(deps.millPlatform, millPlatforms.map(_._1))
+        )
+        .map(p => PathRef(millSourcePath / s"src-${p}"))
   }
 }
 
@@ -154,12 +158,7 @@ trait TestSupport extends MillOsgiModule {
 
 val testVersions: Seq[(String, Deps)] = millPlatforms.flatMap { case (_, d) => d.millTestVersions.map(_ -> d) }
 
-object itest extends Cross[ItestCross](testVersions.map(_._1)) with TaskModule {
-  override def defaultCommandName(): String = "test"
-  def testCached: T[Seq[TestCase]] = itest(testVersions.map(_._1).head).testCached
-  def test(args: String*): Command[Seq[TestCase]] = itest(testVersions.map(_._1).head).test(args: _*)
-}
-
+object itest extends Cross[ItestCross](testVersions.map(_._1))
 trait ItestCross extends MillIntegrationTestModule with Cross.Module[String] {
   def millVersion = crossValue
   def deps = testVersions.toMap.apply(millVersion)
@@ -168,7 +167,7 @@ trait ItestCross extends MillIntegrationTestModule with Cross.Module[String] {
   override def prefetchIvyDeps = Agg(
     ivy"com.typesafe.akka:akka-http-core_2.12:10.1.11"
   )
-  override def sources: Sources = T.sources {
+  override def sources = T.sources {
     super.sources() ++
       ZincWorkerUtil.versionRanges(deps.millPlatform, millPlatforms.map(_._1))
         .map(p => PathRef(millSourcePath / s"src-${p}"))
@@ -187,7 +186,10 @@ trait ItestCross extends MillIntegrationTestModule with Cross.Module[String] {
     val scov = deps.scoverageRuntime.dep
     os.write(
       T.dest / "shared.sc",
-      s"""import $$ivy.`${scov.module.organization.value}::${scov.module.name.value}:${scov.version}`
+      s"""// Load the plugin under test
+         |import $$file.plugins
+         |// Load scoverage runtime to get coverage results
+         |import $$ivy.`${scov.module.organization.value}::${scov.module.name.value}:${scov.version}`
          |""".stripMargin
     )
     PathRef(T.dest)
