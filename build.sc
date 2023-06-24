@@ -102,6 +102,14 @@ trait MillOsgiModule extends ScalaModule with PublishModule with Cross.Module[St
       developers = Seq(Developer("lefou", "Tobias Roeser", "https.//github.com/lefou"))
     )
   }
+  override def sources = T.sources {
+    super.sources() ++
+      (
+        ZincWorkerUtil.matchingVersions(deps.millPlatform) ++
+        ZincWorkerUtil.versionRanges(deps.millPlatform, millPlatforms.map(_._1))
+        )
+        .map(p => PathRef(millSourcePath / s"src-${p}"))
+  }
 }
 
 object core extends Cross[Core](millPlatforms.map(_._1))
