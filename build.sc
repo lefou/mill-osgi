@@ -78,6 +78,13 @@ object Deps_0_6 extends Deps {
 /** Cross build versions */
 val millPlatforms = Seq(Deps_0_11, Deps_0_10, Deps_0_9, Deps_0_7, Deps_0_6).map(x => x.millPlatform -> x)
 
+trait MyScoverageModule extends ScoverageModule {
+  override lazy val scoverage: ScoverageData = new MyScoverageData {}
+  trait MyScoverageData extends ScoverageData {
+    override def skipIdea: Boolean = true
+  }
+}
+
 trait MillOsgiModule extends ScalaModule with PublishModule with Cross.Module[String] {
   def millPlatform: String = crossValue
   def deps: Deps = millPlatforms.toMap.apply(millPlatform)
@@ -86,7 +93,15 @@ trait MillOsgiModule extends ScalaModule with PublishModule with Cross.Module[St
   override def artifactSuffix = s"_mill${deps.millPlatform}_${artifactScalaVersion()}"
   def publishVersion = VcsVersion.vcsState().format()
   override def javacOptions = Seq("-source", "1.8", "-target", "1.8", "-encoding", "UTF-8")
-  override def scalacOptions = Seq("-target:jvm-1.8", "-encoding", "UTF-8", "-deprecation", "-Xsource:3")
+  override def scalacOptions = T {
+    val jvmSpecific =
+      if (scala.util.Properties.isJavaAtLeast(11))
+        Seq("-release", "8")
+      else
+        Seq("-target:jvm-1.8")
+
+    jvmSpecific ++ Seq("-encoding", "UTF-8", "-deprecation", "-Xsource:3")
+  }
   override def pomSettings = T {
     PomSettings(
       description = "Mill module adding OSGi bundle support",
@@ -101,14 +116,14 @@ trait MillOsgiModule extends ScalaModule with PublishModule with Cross.Module[St
     super.sources() ++
       (
         ZincWorkerUtil.matchingVersions(deps.millPlatform) ++
-        ZincWorkerUtil.versionRanges(deps.millPlatform, millPlatforms.map(_._1))
-        )
+          ZincWorkerUtil.versionRanges(deps.millPlatform, millPlatforms.map(_._1))
+      )
         .map(p => PathRef(millSourcePath / s"src-${p}"))
   }
 }
 
 object core extends Cross[Core](millPlatforms.map(_._1))
-trait Core extends MillOsgiModule with ScoverageModule {
+trait Core extends MillOsgiModule with MyScoverageModule {
   override def artifactName = "de.tobiasroeser.mill.osgi"
   override def ivyDeps = super.ivyDeps() ++ Agg(
     deps.bndlib,
@@ -136,7 +151,7 @@ trait Core extends MillOsgiModule with ScoverageModule {
 
   override def scoverageVersion = deps.scoverageVersion
 
-  override def skipIdea: Boolean = millPlatforms.head._1 != millPlatform
+//  override def skipIdea: Boolean = millPlatforms.head._1 != millPlatform
 
   object test extends ScoverageTests with TestModule.ScalaTest {
     override def ivyDeps = Agg(
