@@ -42,8 +42,8 @@ trait TestSupport {
     assert(
       manifest.getMainAttributes().containsKey(header) == false,
       s"""Expected header '${header}' to be undefined, but found value '${manifest.getMainAttributes().getValue(
-        header
-      )}'"""
+          header
+        )}'"""
     )
   }
 

@@ -11,7 +11,7 @@ import de.tobiasroeser.mill.osgi.testsupport.TestSupport._
 
 val projVersion = "1.0.0"
 
-def verifyTask(jar1: PathRef, jar2: PathRef) =  {
+def verifyTask(jar1: PathRef, jar2: PathRef) = {
   println(s"jar1: ${jar1}")
   withManifest(jar1.path) { manifest =>
     checkExact(manifest, "Bundle-SymbolicName", "proj1_2.12")
