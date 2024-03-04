@@ -36,7 +36,7 @@ trait Deps {
   val logbackClassic = ivy"ch.qos.logback:logback-classic:1.1.3"
   def millMain = ivy"com.lihaoyi::mill-main:${millVersion}"
   def millScalalib = ivy"com.lihaoyi::mill-scalalib:${millVersion}"
-  val scalaTest = ivy"org.scalatest::scalatest:3.2.17"
+  val scalaTest = ivy"org.scalatest::scalatest:3.2.18"
   def scalaLibrary = ivy"org.scala-lang:scala-library:${scalaVersion}"
   val scoveragePlugin = ivy"org.scoverage:::scalac-scoverage-plugin:${scoverageVersion}"
   val scoverageRuntime = ivy"org.scoverage::scalac-scoverage-runtime:${scoverageVersion}"
