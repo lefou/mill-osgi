@@ -70,7 +70,7 @@ object Deps_0_7 extends Deps {
 object Deps_0_6 extends Deps {
   override val millVersion = "0.6.0" // scala-steward:off
   override def millPlatform = "0.6"
-  override val scalaVersion = "2.12.19"
+  override val scalaVersion = "2.12.20"
   // keep in sync with .github/workflows/build.yml
   override val millTestVersions = Seq("0.6.3", millVersion)
 }
