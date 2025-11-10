@@ -12,17 +12,16 @@ import java.nio.file.attribute.PosixFilePermission
 import de.tobiasroeser.mill.integrationtest._
 import de.tobiasroeser.mill.vcs.version._
 
-import mill.{Agg, PathRef, T}
+import mill._
 import mill.contrib.scoverage.ScoverageModule
-import mill.define.{Cross, Module, Sources, Target}
 import mill.util.Util
 import mill.scalalib._
-import mill.scalalib.api.ZincWorkerUtil
+import mill.scalalib.api.JvmWorkerUtil
 import mill.scalalib.publish._
 
 import os.Path
 
-private def baseDir = build.millSourcePath
+private def baseDir = build.moduleDir
 
 trait Deps {
   // The mill API version used in the project/sources/dependencies, also default for integration tests
@@ -32,15 +31,15 @@ trait Deps {
   def millTestVersions: Seq[String]
   val scoverageVersion = "2.4.1"
 
-  val bndlib = ivy"biz.aQute.bnd:biz.aQute.bndlib:6.4.1"
-  val logbackClassic = ivy"ch.qos.logback:logback-classic:1.1.3"
-  def millMain = ivy"com.lihaoyi::mill-main:${millVersion}"
-  def millScalalib = ivy"com.lihaoyi::mill-scalalib:${millVersion}"
-  val scalaTest = ivy"org.scalatest::scalatest:3.2.19"
-  def scalaLibrary = ivy"org.scala-lang:scala-library:${scalaVersion}"
-  val scoveragePlugin = ivy"org.scoverage:::scalac-scoverage-plugin:${scoverageVersion}"
-  val scoverageRuntime = ivy"org.scoverage::scalac-scoverage-runtime:${scoverageVersion}"
-  val slf4j = ivy"org.slf4j:slf4j-api:1.7.36"
+  val bndlib = mvn"biz.aQute.bnd:biz.aQute.bndlib:6.4.1"
+  val logbackClassic = mvn"ch.qos.logback:logback-classic:1.1.3"
+  def millMain = mvn"com.lihaoyi::mill-main:${millVersion}"
+  def millScalalib = mvn"com.lihaoyi::mill-scalalib:${millVersion}"
+  val scalaTest = mvn"org.scalatest::scalatest:3.2.19"
+  def scalaLibrary = mvn"org.scala-lang:scala-library:${scalaVersion}"
+  val scoveragePlugin = mvn"org.scoverage:::scalac-scoverage-plugin:${scoverageVersion}"
+  val scoverageRuntime = mvn"org.scoverage::scalac-scoverage-runtime:${scoverageVersion}"
+  val slf4j = mvn"org.slf4j:slf4j-api:1.7.36"
 }
 
 object Deps_0_11 extends Deps {
@@ -69,12 +68,12 @@ trait MyScoverageModule extends ScoverageModule {
 trait MillOsgiModule extends ScalaModule with PublishModule with Cross.Module[String] {
   def millPlatform: String = crossValue
   def deps: Deps = millPlatforms.toMap.apply(millPlatform)
-  override def scalaVersion = T { deps.scalaVersion }
+  override def scalaVersion = Task { deps.scalaVersion }
   override def ivyDeps = Agg(deps.scalaLibrary)
   override def artifactSuffix = s"_mill${deps.millPlatform}_${artifactScalaVersion()}"
   def publishVersion = VcsVersion.vcsState().format()
   override def javacOptions = Seq("-source", "1.8", "-target", "1.8", "-encoding", "UTF-8")
-  override def scalacOptions = T {
+  override def scalacOptions = Task {
     val jvmSpecific =
       if (scala.util.Properties.isJavaAtLeast(11))
         Seq("-release", "8")
@@ -83,7 +82,7 @@ trait MillOsgiModule extends ScalaModule with PublishModule with Cross.Module[St
 
     jvmSpecific ++ Seq("-encoding", "UTF-8", "-deprecation", "-Xsource:3")
   }
-  override def pomSettings = T {
+  override def pomSettings = Task {
     PomSettings(
       description = "Mill module adding OSGi bundle support",
       organization = "de.tototec",
@@ -93,13 +92,16 @@ trait MillOsgiModule extends ScalaModule with PublishModule with Cross.Module[St
       developers = Seq(Developer("lefou", "Tobias Roeser", "https.//github.com/lefou"))
     )
   }
-  override def sources = T.sources {
-    super.sources() ++
-      (
-        ZincWorkerUtil.matchingVersions(deps.millPlatform) ++
-          ZincWorkerUtil.versionRanges(deps.millPlatform, millPlatforms.map(_._1))
+  def sources0 = Task.Sources {
+    (
+      JvmWorkerUtil.matchingVersions(deps.millPlatform) ++
+        JvmWorkerUtil.versionRanges(deps.millPlatform, millPlatforms.map(_._1))
       )
-        .map(p => PathRef(millSourcePath / s"src-${p}"))
+      .map(p => PathRef(moduleDir / s"src-${p}"))
+  }
+  override def sources = Task {
+    super.sources() ++ sources0()
+
   }
 }
 
@@ -115,8 +117,8 @@ trait Core extends MillOsgiModule with MyScoverageModule {
     deps.millScalalib
   )
 
-  override def generatedSources: Target[Seq[PathRef]] = T {
-    val dest = T.dest
+  override def generatedSources: T[Seq[PathRef]] = T {
+    val dest = Task.dest
     val infoClass =
       s"""// Generated with mill from build.sc
          |package de.tobiasroeser.mill.osgi.internal
@@ -161,33 +163,33 @@ trait ItestCross extends MillIntegrationTestModule with Cross.Module[String] {
   override def millTestVersion = T { millVersion }
   override def pluginsUnderTest = Seq(core(deps.millPlatform), testsupport(deps.millPlatform))
   override def prefetchIvyDeps = Agg(
-    ivy"com.typesafe.akka:akka-http-core_2.12:10.1.11"
+    mvn"com.typesafe.akka:akka-http-core_2.12:10.1.11"
   )
-  override def sources = T.sources {
+  override def sources = Task.Sources {
     super.sources() ++
-      ZincWorkerUtil.versionRanges(deps.millPlatform, millPlatforms.map(_._1))
-        .map(p => PathRef(millSourcePath / s"src-${p}"))
+      JvmWorkerUtil.versionRanges(deps.millPlatform, millPlatforms.map(_._1))
+        .map(p => PathRef(moduleDir / s"src-${p}"))
   }
 
   override def pluginUnderTestDetails: Task[Seq[(PathRef, (PathRef, (PathRef, (PathRef, (PathRef, Artifact)))))]] =
-    T.traverse(pluginsUnderTest) { p =>
+    Task.traverse(pluginsUnderTest) { p =>
       val jar = p match {
         case p: ScoverageModule => p.scoverage.jar
         case p => p.jar
       }
       jar zip (p.sourceJar zip (p.docJar zip (p.pom zip (p.ivy zip p.artifactMetadata))))
     }
-  override def perTestResources = T.sources { Seq(generatedSharedSrc()) }
-  def generatedSharedSrc = T {
-    val scov = deps.scoverageRuntime.dep
+  override def perTestResources = Task { Seq(generatedSharedSrc()) }
+  def generatedSharedSrc = Task {
+    val scov = deps.scoverageRuntime
     os.write(
-      T.dest / "shared.sc",
+      Task.dest / "shared.sc",
       s"""// Load the plugin under test
          |import $$file.plugins
          |// Load scoverage runtime to get coverage results
-         |import $$ivy.`${scov.module.organization.value}::${scov.module.name.value}:${scov.version}`
+         |import $$ivy.`${scov.organization}::${scov.name}:${scov.version}`
          |""".stripMargin
     )
-    PathRef(T.dest)
+    PathRef(Task.dest)
   }
 }
