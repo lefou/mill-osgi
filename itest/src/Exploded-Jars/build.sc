@@ -23,7 +23,7 @@ object embedded extends JavaModule
 
 trait Template extends ScalaModule with OsgiBundleModule {
   override def millSourcePath: Path = super.millSourcePath / os.up / "hello"
-  override def scalaVersion: T[String] = "2.13.7"
+  override def scalaVersion: T[String] = "2.13.17"
   override def explodedJars = Seq(embedded.jar())
 }
 

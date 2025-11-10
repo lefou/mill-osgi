@@ -38,7 +38,7 @@ def verify() = T.command {
 
 trait TemplateBnd extends ScalaModule with OsgiBundleModule {
   override def osgiBuildMode: OsgiBundleModule.BuildMode = OsgiBundleModule.BuildMode.ReplaceJarTarget
-  override def scalaVersion: T[String] = "2.12.7"
+  override def scalaVersion: T[String] = "2.12.20"
   override def bundleVersion = projVersion
 }
 
