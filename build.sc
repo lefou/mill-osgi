@@ -1,7 +1,7 @@
 // mill plugins
-import $ivy.`de.tototec::de.tobiasroeser.mill.vcs.version::0.4.0`
+import $ivy.`de.tototec::de.tobiasroeser.mill.vcs.version::0.4.1`
 // Run integration tests with mill
-import $ivy.`de.tototec::de.tobiasroeser.mill.integrationtest::0.7.1`
+import $ivy.`de.tototec::de.tobiasroeser.mill.integrationtest::0.7.3`
 // Generate converage reports
 import $ivy.`com.lihaoyi::mill-contrib-scoverage:`
 
@@ -28,9 +28,9 @@ trait Deps {
   // The mill API version used in the project/sources/dependencies, also default for integration tests
   def millVersion: String
   def millPlatform: String
-  def scalaVersion: String = "2.13.14"
+  def scalaVersion: String = "2.13.16"
   def millTestVersions: Seq[String]
-  val scoverageVersion = "2.2.0"
+  val scoverageVersion = "2.4.1"
 
   val bndlib = ivy"biz.aQute.bnd:biz.aQute.bndlib:6.4.1"
   val logbackClassic = ivy"ch.qos.logback:logback-classic:1.1.3"
@@ -47,7 +47,7 @@ object Deps_0_11 extends Deps {
   override val millVersion = "0.11.0" // scala-steward:off
   override def millPlatform = "0.11"
   // keep in sync with .github/workflows/build.yml
-  override val millTestVersions = Seq("0.11.6", millVersion)
+  override val millTestVersions = Seq("0.12.16", "0.12.0", "0.11.12", millVersion)
 }
 object Deps_0_10 extends Deps {
   override val millVersion = "0.10.0" // scala-steward:off
@@ -55,28 +55,9 @@ object Deps_0_10 extends Deps {
   // keep in sync with .github/workflows/build.yml
   override val millTestVersions = Seq("0.10.12", millVersion)
 }
-object Deps_0_9 extends Deps {
-  override val millVersion = "0.9.3" // scala-steward:off
-  override def millPlatform = "0.9"
-  // keep in sync with .github/workflows/build.yml
-  override val millTestVersions = Seq("0.9.12", millVersion)
-}
-object Deps_0_7 extends Deps {
-  override val millVersion = "0.7.0" // scala-steward:off
-  override def millPlatform = "0.7"
-  // keep in sync with .github/workflows/build.yml
-  override val millTestVersions = Seq("0.8.0", "0.7.4", millVersion)
-}
-object Deps_0_6 extends Deps {
-  override val millVersion = "0.6.0" // scala-steward:off
-  override def millPlatform = "0.6"
-  override val scalaVersion = "2.12.19"
-  // keep in sync with .github/workflows/build.yml
-  override val millTestVersions = Seq("0.6.3", millVersion)
-}
 
 /** Cross build versions */
-val millPlatforms = Seq(Deps_0_11, Deps_0_10, Deps_0_9, Deps_0_7, Deps_0_6).map(x => x.millPlatform -> x)
+val millPlatforms = Seq(Deps_0_11, Deps_0_10).map(x => x.millPlatform -> x)
 
 trait MyScoverageModule extends ScoverageModule {
   override lazy val scoverage: ScoverageData = new MyScoverageData {}
@@ -209,25 +190,4 @@ trait ItestCross extends MillIntegrationTestModule with Cross.Module[String] {
     )
     PathRef(T.dest)
   }
-}
-
-/** Convenience targets. */
-object P extends Module {
-
-  /**
-   * Update the millw script.
-   */
-  def millw() = T.command {
-    // https://raw.githubusercontent.com/lefou/millw/master/millw
-    for {
-      file <- Seq("millw", "millw.bat")
-    } yield {
-      val target = Util.download(s"https://raw.githubusercontent.com/lefou/millw/master/${file}")
-      val millw = baseDir / file
-      os.copy.over(target.path, millw)
-      os.perms.set(millw, os.perms(millw) + PosixFilePermission.OWNER_EXECUTE)
-      target
-    }
-  }
-
 }
