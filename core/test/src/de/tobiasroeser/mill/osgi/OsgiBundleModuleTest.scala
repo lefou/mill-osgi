@@ -4,6 +4,8 @@ import org.scalatest.freespec.AnyFreeSpec
 
 class OsgiBundleModuleTest extends AnyFreeSpec {
 
+  object sut extends OsgiBundleModuleSupport
+
   "Calc BSN from group and artifact" - {
     Seq(
       "group" -> "artifact" -> "group.artifact",
@@ -16,7 +18,7 @@ class OsgiBundleModuleTest extends AnyFreeSpec {
     ).foreach {
       case (pair, expected) =>
         s"${pair} should result in ${expected}" in {
-          assert((OsgiBundleModule.calcBundleSymbolicName _).tupled(pair) === expected)
+          assert(sut.calcBundleSymbolicName.tupled(pair) === expected)
         }
     }
 
@@ -36,7 +38,7 @@ class OsgiBundleModuleTest extends AnyFreeSpec {
     ).foreach {
       case (buildVersion, runVersion, expected, testName) =>
         s"${testName} is ${if (expected) "" else "not "}ok [buildVersion: ${buildVersion}, runVersion: ${runVersion}]" in {
-          assert(OsgiBundleModule.checkMillVersion(buildVersion, runVersion) === expected)
+          assert(sut.checkMillVersion(buildVersion, runVersion) === expected)
         }
     }
 

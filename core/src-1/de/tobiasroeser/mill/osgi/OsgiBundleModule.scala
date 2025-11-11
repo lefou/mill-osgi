@@ -2,21 +2,31 @@ package de.tobiasroeser.mill.osgi
 
 import java.io.FileOutputStream
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters.given
 import scala.util.Try
 
 import aQute.bnd.osgi.{Builder, Constants, Jar}
-import de.tobiasroeser.mill.osgi.internal.{BuildInfo, copy => icopy, unpack => iunpack}
-import mill._
-import mill.define.{Sources, Task}
+import de.tobiasroeser.mill.osgi.internal.{BuildInfo, unpack as iunpack}
+import de.tobiasroeser.mill.osgi.OsgiHeaders
+import mill.*
 import mill.api.PathRef
-import mill.modules.Jvm
 import mill.scalalib.{JavaModule, PublishModule}
+import mill.util.JarManifest
 import os.Path
 
-trait OsgiBundleModule extends OsgiBundleModulePlatform {
+trait OsgiBundleModule extends JavaModule {
 
   import OsgiBundleModule._
+
+  override def compileClasspath: T[Seq[PathRef]] = Task {
+    // restore pre-Mill-0.11.0-M8 behavior
+    // Mill 0.11.0-M8 uses transitiveCompileClasspath instead of transitiveLocalClass
+    // which does not include the resources
+    transitiveLocalClasspath() ++
+      compileResources() ++
+      unmanagedClasspath() ++
+      resolvedMvnDeps()
+  }
 
   /**
    * The build mode.
@@ -34,11 +44,11 @@ trait OsgiBundleModule extends OsgiBundleModulePlatform {
    * JAR files instead of just the classes directories where possible.
    * This is needed, as only the final JARs contain proper OSGi manifest entries.
    */
-  override def transitiveLocalClasspath: T[Agg[PathRef]] = osgiBuildMode match {
-    case BuildMode.ReplaceJarTarget => T {
-        T.traverse(recursiveModuleDeps) { m =>
-          T.task {
-            Agg(m.jar())
+  override def transitiveLocalClasspath: T[Seq[PathRef]] = osgiBuildMode match {
+    case BuildMode.ReplaceJarTarget => Task {
+        Task.traverse(recursiveModuleDeps) { m =>
+          Task.Anon {
+            Seq(m.jar())
           }
         }().flatten
       }
@@ -47,7 +57,7 @@ trait OsgiBundleModule extends OsgiBundleModulePlatform {
 
   override def localClasspath: T[Seq[PathRef]] = osgiBuildMode match {
     case BuildMode.ReplaceJarTarget => super.localClasspath
-    case BuildMode.CalculateManifest => T {
+    case BuildMode.CalculateManifest => Task {
         Seq(osgiManifest()) ++ super.localClasspath()
       }
   }
@@ -58,7 +68,7 @@ trait OsgiBundleModule extends OsgiBundleModulePlatform {
    * If [[osgiBuildMode]] is [[BuildMode.ReplaceJarTarget]] then this links to [[osgiBundle]] instead.
    */
   override def jar: T[PathRef] = osgiBuildMode match {
-    case BuildMode.ReplaceJarTarget => T { osgiBundle() }
+    case BuildMode.ReplaceJarTarget => Task { osgiBundle() }
     case BuildMode.CalculateManifest => super.jar
   }
 
@@ -68,7 +78,7 @@ trait OsgiBundleModule extends OsgiBundleModulePlatform {
    * from [[PublishModule.artifactMetadata]]
    */
   def bundleSymbolicName: T[String] = this match {
-    case pm: PublishModule => T {
+    case pm: PublishModule => Task {
         calcBundleSymbolicName(pm.pomSettings().organization, artifactId())
       }
     case _ =>
@@ -80,7 +90,7 @@ trait OsgiBundleModule extends OsgiBundleModulePlatform {
    * If the module is a [[PublishModule]], it uses the [[PublishModule.publishVersion]]
    */
   def bundleVersion: T[String] = this match {
-    case pm: PublishModule => T {
+    case pm: PublishModule => Task {
         pm.publishVersion()
       }
     case _ => "0.0.0"
@@ -89,21 +99,21 @@ trait OsgiBundleModule extends OsgiBundleModulePlatform {
   /**
    * Instruct bnd to create a reproducible bundle file.
    */
-  def reproducibleBundle: T[Boolean] = T {
+  def reproducibleBundle: T[Boolean] = Task {
     true
   }
 
   /**
    * Embed these JAR files and also add them to the bundle classpath.
    */
-  def embeddedJars: T[Seq[PathRef]] = T {
+  def embeddedJars: T[Seq[PathRef]] = Task {
     Seq[PathRef]()
   }
 
   /**
    * Embed the content of the given JAR files into the bundle.
    */
-  def explodedJars: T[Seq[PathRef]] = T {
+  def explodedJars: T[Seq[PathRef]] = Task {
     Seq[PathRef]()
   }
 
@@ -114,7 +124,7 @@ trait OsgiBundleModule extends OsgiBundleModulePlatform {
       )
 
     this match {
-      case pm: PublishModule => T {
+      case pm: PublishModule => Task {
           val pom = pm.pomSettings()
           withDefaults(OsgiHeaders(
             `Bundle-SymbolicName` = bundleSymbolicName(),
@@ -124,7 +134,7 @@ trait OsgiBundleModule extends OsgiBundleModulePlatform {
             `Bundle-Description` = Option(pom.description)
           ))
         }
-      case _ => T {
+      case _ => Task {
           withDefaults(OsgiHeaders(
             `Bundle-SymbolicName` = bundleSymbolicName(),
             `Bundle-Version` = Option(bundleVersion())
@@ -136,7 +146,7 @@ trait OsgiBundleModule extends OsgiBundleModulePlatform {
   /**
    * Iff `true` include sources in the final bundle under `OSGI-OPT/src`.
    */
-  def includeSources: T[Boolean] = T {
+  def includeSources: T[Boolean] = Task {
     false
   }
 
@@ -144,7 +154,7 @@ trait OsgiBundleModule extends OsgiBundleModulePlatform {
    * Resources to include into the final bundle.
    * Defaults to include [[JavaModule.resources()]].
    */
-  def includeResource: T[Seq[String]] = T {
+  def includeResource: T[Seq[String]] = Task {
     // default: add contents of resources to final bundle
     resources()
       // only take non-empty directories to avoid bnd warning/error
@@ -157,7 +167,7 @@ trait OsgiBundleModule extends OsgiBundleModulePlatform {
    * Exports the given packages but does not try to include them from the class path.
    * The packages should be loaded with alternative means.
    */
-  def exportContents: T[Seq[String]] = T {
+  def exportContents: T[Seq[String]] = Task {
     Seq[String]()
   }
 
@@ -168,29 +178,29 @@ trait OsgiBundleModule extends OsgiBundleModulePlatform {
    * Warning: All headers added here will override their previous value,
    * hence, be careful to not add standard OSGi headers here, but via [[osgiHeaders]].
    */
-  def additionalHeaders: T[Map[String, String]] = T {
+  def additionalHeaders: T[Map[String, String]] = Task {
     Map[String, String]()
   }
 
   /**
    * Build the OSGi Bundle by using the bnd tool.
    */
-  def osgiBundle: T[PathRef] = T {
+  def osgiBundle: T[PathRef] = Task {
     val jar = osgiBundleTask()
-    val outputPath = T.ctx().dest / s"${bundleSymbolicName()}-${bundleVersion()}.jar"
+    val outputPath = Task.ctx().dest / s"${bundleSymbolicName()}-${bundleVersion()}.jar"
     jar.write(outputPath.toIO)
     PathRef(outputPath)
   }
 
   /**
    * Generated the OSGi Bundle manifest by using the bnd tool.
-   * @return The path containing `META-INF/MANIFEST.MF`, can be used as classpath too.
+   * @return The path containing `META-INF/MANIFESTask.MF`, can be used as classpath too.
    */
-  def osgiManifest: T[PathRef] = T {
+  def osgiManifest: T[PathRef] = Task {
     val jar = osgiBundleTask()
     val manifest = jar.getManifest()
 
-    val outputFile = T.dest / "META-INF" / "MANIFEST.MF"
+    val outputFile = Task.dest / "META-INF" / "MANIFEST.MF"
     os.makeDir.all(outputFile / os.up)
     val stream = new FileOutputStream(outputFile.toIO)
     try {
@@ -198,7 +208,7 @@ trait OsgiBundleModule extends OsgiBundleModulePlatform {
     } finally {
       stream.close()
     }
-    PathRef(T.dest)
+    PathRef(Task.dest)
   }
 
   /**
@@ -206,7 +216,7 @@ trait OsgiBundleModule extends OsgiBundleModulePlatform {
    * The default implementation generates OSGi manifest entries from compiled classes with bnd tool and
    * additionally adds a `Main-Class`, if defined in [[mainClass]].
    */
-  override def manifest: T[Jvm.JarManifest] = T {
+  override def manifest: T[JarManifest] = Task {
     // Mill defined
     val pre = super.manifest()
     // bnd calculated
@@ -214,7 +224,7 @@ trait OsgiBundleModule extends OsgiBundleModulePlatform {
     def entryAsStringPair(entry: java.util.Map.Entry[Object, Object]): (String, String) = {
       entry.getKey().toString() -> Option(entry.getValue()).map(_.toString()).getOrElse("")
     }
-    Jvm.JarManifest(
+    JarManifest(
       main = pre.main ++ manifest.getMainAttributes.entrySet().asScala.map(entryAsStringPair).toMap,
       groups = pre.groups ++ manifest.getEntries().asScala.map(e =>
         e._1 -> e._2.entrySet().asScala.map(entryAsStringPair).toMap
@@ -222,18 +232,18 @@ trait OsgiBundleModule extends OsgiBundleModulePlatform {
     )
   }
 
-  override def resources: Sources = osgiBuildMode match {
-    case BuildMode.ReplaceJarTarget => super.resources
-    case BuildMode.CalculateManifest => T.sources {
+  override def resources: T[Seq[PathRef]] = osgiBuildMode match {
+    case BuildMode.ReplaceJarTarget => Task { super.resources() }
+    case BuildMode.CalculateManifest => Task {
         super.resources() ++ {
-          val dest = T.dest
+          val dest = Task.dest
           if (includeSources()) {
             sources().map(_.path).filter(os.exists).map { path =>
-              icopy(path, dest / "OSGI-OPT" / "src", createFolders = true, mergeFolders = true)
+              os.copy(path, dest / "OSGI-OPT" / "src", createFolders = true, mergeFolders = true)
             }
           }
           embeddedJars().foreach { jar =>
-            icopy(jar.path, dest / jar.path.last)
+            os.copy(jar.path, dest / jar.path.last)
           }
           explodedJars().foreach { jar =>
             iunpack.zip(jar.path, dest)
@@ -251,10 +261,10 @@ trait OsgiBundleModule extends OsgiBundleModulePlatform {
     case BuildMode.CalculateManifest => osgiBundleTask(super.localClasspath, calcPrivatePackage = false)
   }
 
-  def osgiBundleTask(localClasspath: Task[Seq[PathRef]], calcPrivatePackage: Boolean): Task[Jar] = T.task {
-    val log = T.ctx().log
+  def osgiBundleTask(localClasspath: Task[Seq[PathRef]], calcPrivatePackage: Boolean): Task[Jar] = Task.Anon {
+    val log = Task.log
 
-    val currentRunningMillVersion = T.ctx().env.get("MILL_VERSION")
+    val currentRunningMillVersion = Task.ctx().env.get("MILL_VERSION")
     if (!checkMillVersion(currentRunningMillVersion)) {
       log.error(
         s"Your used mill version is most probably too old. In case of errors use (at least) mill version ${BuildInfo.millVersion}."
@@ -363,57 +373,7 @@ trait OsgiBundleModule extends OsgiBundleModulePlatform {
 
 }
 
-object OsgiBundleModule {
-
-  def calcBundleSymbolicName(group: String, artifact: String): String = {
-    val groupParts = group.split("[.]")
-    val nameParts = artifact.split("[.]").flatMap(_.split("[-]"))
-
-    val parts =
-      if (nameParts.startsWith(groupParts)) nameParts
-      else (groupParts.lastOption, nameParts.headOption) match {
-        case (Some(last), Some(head)) if last == head => groupParts ++ nameParts.tail
-        case (Some(last), Some(head)) if head.startsWith(last) => groupParts.take(groupParts.size - 1) ++ nameParts
-        case _ => groupParts ++ nameParts
-      }
-
-    parts.mkString(".")
-  }
-
-  def mergeSeqProps(builder: Builder, key: String, value: Seq[String]): Unit = {
-    val existing = builder.getProperty(key) match {
-      case null => Seq()
-      case p => Seq(p)
-    }
-    builder.setProperty(key, (existing ++ value).mkString(","))
-  }
-
-  protected[osgi] def checkMillVersion(millVersion: Option[String]): Boolean =
-    checkMillVersion(BuildInfo.millVersion, millVersion)
-
-  protected[osgi] def checkMillVersion(buildVersion: String, millVersion: Option[String]): Boolean = millVersion match {
-    case Some(v) =>
-      /** Extract the major, minor and micro version parts of the given version string. */
-      def parseVersion(version: String): Try[Array[Int]] = Try {
-        version
-          .split("[-]", 2)(0)
-          .split("[.]", 4)
-          .take(3)
-          .map(_.toInt)
-      }
-
-      val buildMillVersion = parseVersion(buildVersion).getOrElse(Array(0, 0, 0))
-      val runMillVersion = parseVersion(v).getOrElse(Array(999, 999, 999))
-
-      (runMillVersion(0) > buildMillVersion(0)) ||
-      (runMillVersion(0) == buildMillVersion(0) && runMillVersion(1) > buildMillVersion(1)) ||
-      (runMillVersion(0) == buildMillVersion(0) && runMillVersion(1) == buildMillVersion(1) &&
-        runMillVersion(2) >= buildMillVersion(2))
-
-    case _ =>
-      // ignore
-      true
-  }
+object OsgiBundleModule extends OsgiBundleModuleSupport {
 
   sealed trait BuildMode
   object BuildMode {

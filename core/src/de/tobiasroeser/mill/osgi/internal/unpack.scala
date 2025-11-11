@@ -1,6 +1,7 @@
 package de.tobiasroeser.mill.osgi.internal
 
-import mill.api.IO
+import java.io.{InputStream, OutputStream}
+
 import os.Path
 
 object unpack {
@@ -18,7 +19,7 @@ object unpack {
                 os.makeDir.all(entryDest / os.up)
                 val fileOut = new java.io.FileOutputStream(entryDest.toString)
                 try {
-                  IO.stream(zipStream, fileOut)
+                  stream(zipStream, fileOut)
                 } finally {
                   fileOut.close()
                   zipStream.closeEntry()
@@ -33,5 +34,21 @@ object unpack {
     } finally {
       byteStream.close()
     }
+  }
+
+
+  /**
+   * Pump the data from the `src` stream into the `dest` stream.
+   */
+  private def stream(src: InputStream, dest: OutputStream): Unit = {
+    val buffer = new Array[Byte](4096)
+    while ({
+      src.read(buffer) match {
+        case -1 => false
+        case n =>
+          dest.write(buffer, 0, n)
+          true
+      }
+    }) ()
   }
 }
