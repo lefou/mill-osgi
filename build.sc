@@ -38,7 +38,7 @@ trait Deps {
   def scalaLibrary = mvn"org.scala-lang:scala-library:${scalaVersion}"
   val scoveragePlugin = mvn"org.scoverage:::scalac-scoverage-plugin:${scoverageVersion}"
   val scoverageRuntime = mvn"org.scoverage::scalac-scoverage-runtime:${scoverageVersion}"
-  val slf4j = mvn"org.slf4j:slf4j-api:1.7.36"
+  val slf4j = mvn"org.slf4j:slf4j-api:2.0.17"
 }
 
 object Deps_1 extends Deps {
