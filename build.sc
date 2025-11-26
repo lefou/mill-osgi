@@ -26,7 +26,7 @@ trait Deps {
   // The mill API version used in the project/sources/dependencies, also default for integration tests
   def millVersion: String
   def millPlatform: String
-  def scalaVersion: String = "2.13.16"
+  def scalaVersion: String = "2.13.18"
   def millTestVersions: Seq[String]
   val scoverageVersion = "2.4.1"
 
