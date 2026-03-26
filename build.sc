@@ -34,7 +34,7 @@ trait Deps {
   val logbackClassic = mvn"ch.qos.logback:logback-classic:1.1.3"
   def millMain = mvn"com.lihaoyi::mill-main:${millVersion}"
   def millScalalib = mvn"com.lihaoyi::mill-scalalib:${millVersion}"
-  val scalaTest = mvn"org.scalatest::scalatest:3.2.19"
+  val scalaTest = mvn"org.scalatest::scalatest:3.2.20"
   def scalaLibrary = mvn"org.scala-lang:scala-library:${scalaVersion}"
   val scoveragePlugin = mvn"org.scoverage:::scalac-scoverage-plugin:${scoverageVersion}"
   val scoverageRuntime = mvn"org.scoverage::scalac-scoverage-runtime:${scoverageVersion}"
