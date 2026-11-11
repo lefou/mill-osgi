@@ -47,7 +47,7 @@ object Deps_1 extends Deps {
   // keep in sync with .github/workflows/build.yml
   override val millTestVersions = Seq("1.1.0-RC1", millVersion)
   override def millScalalib: Dep = mvn"com.lihaoyi::mill-libs:${millVersion}"
-  override def scalaVersion = "3.7.4"
+  override def scalaVersion = "3.10.1"
 }
 object Deps_0_11 extends Deps {
   override val millVersion = "0.11.0" // scala-steward:off
